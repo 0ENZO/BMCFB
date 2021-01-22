@@ -1,5 +1,6 @@
 @import "~bootstrap/scss/bootstrap";
 @import "fonts"; 
+@import "buttons";
 
 .vh_100 {
     height: 100vh;
@@ -19,3 +20,36 @@ body {
     padding: 54px 0 0 0;
     font-weight: 300;
 }
+
+/* User profil pic edit */
+.profilpic {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    position: relative;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  
+  .profilpic img {
+    max-height: 140px;
+    width: auto;
+    max-width: 100%;
+    border-radius: 50%;
+  }
+  
+  .profilpic i {
+    position: absolute;
+    top: 20px;
+    right: -5px;
+    border: 1px solid darkgray;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    color: rgba(0, 0, 0, 0.8);
+  }

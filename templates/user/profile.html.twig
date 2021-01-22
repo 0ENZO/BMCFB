@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Modifier mes informations{% endblock %}
+{% block body %}
+
+{% set referer = app.request.server.get('HTTP_REFERER') %}
+
+<div class="container-fluid m-0 p-0">
+    <div class="row no-gutters">
+
+        <div class="col-md-6 p-md-5 p-3 d-flex align-items-center">
+            <div class="w-100">
+
+                {{ include('_alert.html.twig') }}
+
+                <div class="profilpic mx-auto mb-5" style="background-image: url(https://ui-avatars.com/api/?background=0D8ABC&color=fff&name={{ user.email }}&length=1); background-position: center;">
+                    <a id="profilpicEdit" class="hidden_link cliquable">
+                    </a>
+                </div>
+
+                <h1 class="fw-600 font_size_1250 mb-4">Modifier mes informations</h1>
+
+                <div class="px-3">
+                    {{ form_start(form, {'method': 'post'}) }}
+                                    
+                        {% if form_errors(form) %}
+                            <div class="mb-0">{{ form_errors(form) }}</div>
+                        {% endif %}
+
+                        {% if form.profilePicture is defined and form.profilePicture is not null %}
+                            <div class="mb-0 d-none">
+                                {{ form_errors(form.profilePicture) }}
+                                {{ form_widget(form.profilePicture) }}  
+                            </div>
+                        {% endif %}
+
+                        {% if form_errors(form.email) %}
+                            <div class="mb-0">
+                                {{ form_errors(form.email) }}
+                            </div>
+                        {% endif %}
+                    
+                        {% if form.email is defined %}
+                            <div class="mt-4 mb-1">
+                                <strong>Email</strong>
+                            </div>
+                            <div class="input-group mb-4">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><i class="fas fa-at"></i></div>
+                                </div>
+                                {{ form_widget(form.email, { 'attr': { 'class': 'form-control' } }) }}
+                            </div>
+                        {% endif %}
+                    
+                        <div class="mt-4 mb-1">
+                            <strong>Prénom et Nom <small>(facultatifs)</small></strong>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                {{ form_widget(form.firstname, { 'attr': { 'placeholder': 'Prénom' } }) }}
+                            </div>
+                            <div class="col-6">
+                                {{ form_widget(form.lastname, { 'attr': { 'placeholder': 'Nom' } }) }}
+                            </div>
+                        </div>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a class="btn btn-outline-primary mb-4 mx-0" href="{{ path('app_password_change') }}" style="border-radius: 0px!important;">
+                                <i class="fas fa-user-shield fa-fw mr-2"></i>Modifier le mot de passe
+                            </a>
+                        {% endif %}
+                    
+                </div>
+                        <div class="d-flex justify-content-between">
+                            {% if referer is not null %}
+                                {% if 'password_change' in referer %}
+                                    <a href="{{ path('home') }}" class="btn btn_material mx-0 px-0">
+                                {% else %}
+                                    <a href="{{ referer }}" class="btn btn_material mx-0 px-0">
+                                {% endif %}
+                                    <i class="fas fa-chevron-left mr-2"></i>Retour
+                                    </a>
+                            {% else %}
+                                <a href="{{ path('home') }}" class="btn btn_material mx-0 px-0">
+                                    <i class="fas fa-chevron-left mr-2"></i>Retour
+                                </a>
+                            {% endif %}
+                            <button class="btn btn-primary" type="submit">Enregistrer
+                                <i class="fas fa-user-edit fa-fw ml-2"></i>
+                            </button>
+                        </div>
+
+                    {{ form_end(form) }}
+            </div>
+        </div>
+
+        {# Côté droit - Image #}
+        <div class="col-md-6 d-none d-md-block">
+            <img src="https://picsum.photos/2600/2400" alt="Ampli off" class="vh_100_navbar w-100"
+                style="object-fit: cover; object-position: center center;">
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
