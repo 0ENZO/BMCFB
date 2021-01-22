@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<div id="register_content" class="container p-md-5 p-3 full_page_container">
+    <div class="row" style="flex-grow: 1;"> {# flex-grow fix pour IE11 #}
+        <div class="col-lg-5 col-md-8 mx-auto">
+
+            <div class="card mb-0 d-block"> {# d-block fix pour IE11 #}
+                <img src="{{ asset('/img/door.jpg') }}" class="card-img-top" alt="door">
+                <div class="card-body">
+
+                    {{ form_start(registrationForm) }}
+
+                        {% if form_errors(registrationForm) %}
+                            <div class="mb-0">{{ form_errors(registrationForm) }}</div>
+                        {% endif %}
+
+                        {% if app.user %}
+                            <div class="mb-3">
+                                <div class="container-fluid">
+                                    <div class="alert alert-dismissible fade show alert-info mt-3">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        Vous êtes déja connecté avec l'adresse : {{ app.user.username }} | <a
+                                            href="{{ path('app_logout') }}">Se
+                                            déconnecter</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            {{ form_widget(registrationForm.email, { 'attr': { 'placeholder': 'Email' } }) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_widget(registrationForm.plainPassword, { 'attr': { 'placeholder': 'Mot de passe' } }) }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_widget(registrationForm.agreeTerms) }}
+                        </div>
+            
+                        <div class="text-center">
+                            <button class="btn btn-primary btn_rounded my-2" type="submit">Inscription</button>
+                        </div>
+                    {{ form_end(registrationForm) }}
+
+                    <div class="py-4 rounded-0 text-center">
+                        <p class="text-pitch px-3 mb-0 font_size_875">En poursuivant votre navigation, vous acceptez les
+                            <a class href="#" target="_blank">Conditions Générales d'Utilisation</a>.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
