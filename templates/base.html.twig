@@ -1,13 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-
-        {% block javascripts %}{% endblock %}
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE-edge">
+        <title>{% block title %}BMCFB{% endblock %}</title>
+        {% block stylesheets %}
+            <link rel="icon" type="image/png" href="{{ asset('/img/favicon.png') }}" />
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+                integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,800,800i&display=swap"
+                rel="stylesheet">
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
     </head>
     <body>
+        {{ include('_navbar.html.twig') }}
         {% block body %}{% endblock %}
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
     </body>
 </html>

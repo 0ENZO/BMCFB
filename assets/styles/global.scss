@@ -1,0 +1,21 @@
+@import "~bootstrap/scss/bootstrap";
+@import "fonts"; 
+
+.vh_100 {
+    height: 100vh;
+}
+
+.vh_100_nav {
+    height: calc(100vh - 54px);
+}
+
+.vw_100 {
+    height: 100vw;
+}
+
+body {
+	font-family: $font_main;
+    color: $default-text-color;
+    padding: 54px 0 0 0;
+    font-weight: 300;
+}

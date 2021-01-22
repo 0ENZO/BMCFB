@@ -1,0 +1,82 @@
+// $font_logo: 'Righteous', cursive;
+$font_logo: 'Montserrat', sans-serif;
+// $font_main: 'Open Sans', sans-serif; // doit exister en 300, 400, 600 et 700
+$font_main: 'Montserrat', sans-serif;
+
+$default-text-color: rgba(0, 0, 0, 0.87);
+$light_text_color: rgba(0, 0, 0, 0.60);
+
+h1, h2, h3, h4 {
+    font-weight: 600;
+}
+
+.text_size_4 {
+	font-size: 4em;
+}
+
+.text_small_responsive { font-size: 0.875rem; } /* xs moins de 576px - 14px */
+@media (min-width: 576px) { .text_small_responsive { font-size: 0.9rem; } } /* sm moins de 768px */
+@media (min-width: 768px) { .text_small_responsive { font-size: 1rem; } } /* md moins de 992px */
+@media (min-width: 992px) { .text_small_responsive { font-size: 1.1rem; } } /* lg moins de 1200px */
+@media (min-width: 1200px) { .text_small_responsive { font-size: 1.25rem; } } /* xl - 20px */  
+
+.text_responsive { font-size: 1rem; } /* xs moins de 576px */
+@media (min-width: 576px) { .text_responsive { font-size: 1.1rem; } }
+@media (min-width: 768px) { .text_responsive { font-size: 1.2rem; } }
+@media (min-width: 992px) { .text_responsive { font-size: 1.3rem; } }
+@media (min-width: 1200px) { .text_responsive { font-size: 1.4rem; } } /* xl */
+
+.text_big_responsive { font-size: 1.25rem; } /* 20px - titre de card */
+@media (min-width: 576px) { .text_big_responsive { font-size: 1.4rem; } }
+@media (min-width: 768px) { .text_big_responsive { font-size: 1.5rem; } }
+@media (min-width: 992px) { .text_big_responsive { font-size: 1.6rem; } }
+@media (min-width: 1200px) { .text_big_responsive { font-size: 1.75rem; } }
+
+.text_bigger_responsive { font-size: 2rem; } /* 32px */
+@media (min-width: 576px) { .text_bigger_responsive { font-size: 2.25rem; } }
+@media (min-width: 768px) { .text_bigger_responsive { font-size: 2.5rem; } }
+@media (min-width: 992px) { .text_bigger_responsive { font-size: 2.75rem; } }
+@media (min-width: 1200px) { .text_bigger_responsive { font-size: 3rem; } }
+
+#landing_page .type_js { min-height: calc(2rem * 2.5); } /* 2.5 pour deux lignes approx */
+@media (min-width: 576px) { #landing_page .type_js { min-height: calc(2.25rem * 2.5); } }
+@media (min-width: 768px) { #landing_page .type_js { min-height: calc(2.5rem * 2.5); } }
+@media (min-width: 992px) { #landing_page .type_js { min-height: calc(2.75rem * 2.5); } }
+@media (min-width: 1200px) { #landing_page .type_js { min-height: calc(3rem * 2.5); } }
+
+.font_size_875 {
+    font-size: 0.875rem; /* 14px */
+}
+
+.font_size_1250 {
+    font-size: 1.25rem; /* 20px */
+}
+
+.text_color_87 {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.text_color_60 {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.fw_300 {
+    font-weight: 300;
+}
+
+.fw_600 {
+    font-weight: 600;
+}
+
+.fw_700 {
+    font-weight: 700;
+}
+
+.text_md_white_else_color_87 {
+    color: #fff;
+}
+@media (max-width: 767px) {
+    .text_md_white_else_color_87 {
+        color: rgba(0, 0, 0, 0.87);
+    }
+}
