@@ -1,0 +1,16 @@
+easy_admin:
+    entities:
+        Utilisateurs:
+            class:  App\Entity\User
+        Questionnaires:
+            class: App\Entity\Questionnaire
+        Themes:
+            class: App\Entity\Topic
+        Profils:
+            class: App\Entity\Profile
+        Affirmations:
+            class: App\Entity\Statement
+        Enregistrements: 
+            class: App\Entity\Record
+        Tracks: 
+            class: App\Entity\Track

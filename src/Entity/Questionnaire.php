@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\CourseRepository;
+use App\Repository\QuestionnaireRepository;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,9 +11,9 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=CourseRepository::class)
+ * @ORM\Entity(repositoryClass=QuestionnaireRepository::class)
  */
-class Course
+class Questionnaire
 {
     /**
      * @ORM\Id
@@ -28,7 +28,7 @@ class Course
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     private $summary;
 
@@ -43,19 +43,19 @@ class Course
     private $isOpen;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="courses")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="questionnaires")
      * @ORM\JoinColumn(nullable=false)
      */
     private $leader;
 
     /**
-     * @ORM\OneToMany(targetEntity=Topic::class, mappedBy="course", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Topic::class, mappedBy="questionnaire", orphanRemoval=true)
      */
     private $topics;
 
     /**
      * NOTE: This is not a mapped field of entity metadata, just a simple property.
-     * @Vich\UploadableField(mapping="course_logo", fileNameProperty="logoName")
+     * @Vich\UploadableField(mapping="questionnaire_logo", fileNameProperty="logoName")
      * @Assert\Image(
      *  maxSize = "5M",
      *  mimeTypes={ "image/gif", "image/jpeg", "image/png" }
@@ -71,7 +71,7 @@ class Course
     private $logoName;
 
     /**
-     * @ORM\OneToMany(targetEntity=Profile::class, mappedBy="course", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Profile::class, mappedBy="questionnaire", orphanRemoval=true)
      */
     private $profiles;
 
@@ -158,7 +158,7 @@ class Course
     {
         if (!$this->topics->contains($topic)) {
             $this->topics[] = $topic;
-            $topic->setCourse($this);
+            $topic->setQuestionnaire($this);
         }
 
         return $this;
@@ -168,8 +168,8 @@ class Course
     {
         if ($this->topics->removeElement($topic)) {
             // set the owning side to null (unless already changed)
-            if ($topic->getCourse() === $this) {
-                $topic->setCourse(null);
+            if ($topic->getQuestionnaire() === $this) {
+                $topic->setQuestionnaire(null);
             }
         }
 
@@ -223,7 +223,7 @@ class Course
     {
         if (!$this->profiles->contains($profile)) {
             $this->profiles[] = $profile;
-            $profile->setCourse($this);
+            $profile->setQuestionnaire($this);
         }
 
         return $this;
@@ -233,11 +233,16 @@ class Course
     {
         if ($this->profiles->removeElement($profile)) {
             // set the owning side to null (unless already changed)
-            if ($profile->getCourse() === $this) {
-                $profile->setCourse(null);
+            if ($profile->getQuestionnaire() === $this) {
+                $profile->setQuestionnaire(null);
             }
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 }

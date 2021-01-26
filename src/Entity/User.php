@@ -59,15 +59,15 @@ class User implements UserInterface
     private $records;
 
     /**
-     * @ORM\OneToMany(targetEntity=Course::class, mappedBy="leader")
+     * @ORM\OneToMany(targetEntity=Questionnaire::class, mappedBy="leader")
      */
-    private $courses;
+    private $questionnaires;
 
     public function __construct()
     {
         $this->tracks = new ArrayCollection();
         $this->records = new ArrayCollection();
-        $this->courses = new ArrayCollection();
+        $this->questionnaires = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -233,32 +233,37 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Course[]
+     * @return Collection|Questionnaire[]
      */
-    public function getCourses(): Collection
+    public function getQuestionnaires(): Collection
     {
-        return $this->courses;
+        return $this->questionnaires;
     }
 
-    public function addCourse(Course $course): self
+    public function addQuestionnaire(Questionnaire $questionnaire): self
     {
-        if (!$this->courses->contains($course)) {
-            $this->courses[] = $course;
-            $course->setLeader($this);
+        if (!$this->questionnaires->contains($questionnaire)) {
+            $this->questionnaires[] = $questionnaire;
+            $questionnaire->setLeader($this);
         }
 
         return $this;
     }
 
-    public function removeCourse(Course $course): self
+    public function removeQuestionnaire(Questionnaire $questionnaire): self
     {
-        if ($this->courses->removeElement($course)) {
+        if ($this->questionnaires->removeElement($questionnaire)) {
             // set the owning side to null (unless already changed)
-            if ($course->getLeader() === $this) {
-                $course->setLeader(null);
+            if ($questionnaire->getLeader() === $this) {
+                $questionnaire->setLeader(null);
             }
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->email;
     }
 }

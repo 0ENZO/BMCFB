@@ -30,10 +30,10 @@ class Topic
     private $statements;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Course::class, inversedBy="topics")
+     * @ORM\ManyToOne(targetEntity=Questionnaire::class, inversedBy="topics")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $course;
+    private $questionnaire;
 
     public function __construct()
     {
@@ -87,15 +87,20 @@ class Topic
         return $this;
     }
 
-    public function getCourse(): ?Course
+    public function getQuestionnaire(): ?Questionnaire
     {
-        return $this->course;
+        return $this->questionnaire;
     }
 
-    public function setCourse(?Course $course): self
+    public function setQuestionnaire(?Questionnaire $questionnaire): self
     {
-        $this->course = $course;
+        $this->questionnaire = $questionnaire;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->title;
     }
 }

@@ -53,3 +53,23 @@ body {
     background-color: white;
     color: rgba(0, 0, 0, 0.8);
   }
+
+.fixed-btn {
+  position: fixed;
+  top: 175px;
+  right: 50px;
+  z-index: 10;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28);
+  transition: all 500ms ease;
+  text-align: center;
+  font-size: 30px;
+}
+
+@media (max-width: 768px) {
+  .fixed-btn {
+      display: none;
+  }
+}

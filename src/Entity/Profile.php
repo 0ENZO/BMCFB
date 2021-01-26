@@ -30,10 +30,10 @@ class Profile
     private $content;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Course::class, inversedBy="profiles")
+     * @ORM\ManyToOne(targetEntity=Questionnaire::class, inversedBy="profiles")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $course;
+    private $questionnaire;
 
     /**
      * @ORM\OneToMany(targetEntity=Statement::class, mappedBy="profile", orphanRemoval=true)
@@ -74,14 +74,14 @@ class Profile
         return $this;
     }
 
-    public function getCourse(): ?Course
+    public function getQuestionnaire(): ?Questionnaire
     {
-        return $this->course;
+        return $this->questionnaire;
     }
 
-    public function setCourse(?Course $course): self
+    public function setQuestionnaire(?Questionnaire $questionnaire): self
     {
-        $this->course = $course;
+        $this->questionnaire = $questionnaire;
 
         return $this;
     }
@@ -114,5 +114,10 @@ class Profile
         }
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->title;
     }
 }

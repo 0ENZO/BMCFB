@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Administration {% endblock %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="col-md-10 mx-auto my-5">
+            <div class="d-flex row justify-content-between">
+                <h2>LES QUESTIONNAIRES DISPONIBLES :</h2>
+                <a href="" class="btn btn-primary">En ajouter un </a>
+            </div>
+            <hr>
+
+            <div class="fixed-btn px-3">
+                <a href="/admin/easyadmin"><i class="fas fa-cogs" aria-hidden="true"></i></a>
+            </div>
+
+            {% if questionnaires is defined and questionnaires is not null %}
+                <div class="d-flex align-items-stretch mb-5 pt-5">
+                    {% for questionnaire in questionnaires %}
+
+                    <div class="card mr-4">
+                        <a href="" class="text-right" style="position: absolute; top:10px; z-index: 100; right:5px;"><i class="fas fa-cog"></i></a>
+                        <img class="card-img-top" src="https://picsum.photos/300/100" alt="Card image cap" style="position: relative;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ questionnaire.name }}</h5>
+                            <p class="card-text">{{ questionnaire.summary|length > '130'? questionnaire.summary|slice(0, 130)~'..': questionnaire.summary }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <small class=""><a href="">Voir le questionnaire</a></small>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center my-5 pt-5">
+                    <img src="{{ asset('/img/searching.svg')}}" alt="">
+                    <h3 style="color:rgb(64, 64, 61) ">Aucun résultat n'a été trouvé !</h3>
+                    <span>Créez en un dès maintenant en cliquant <a href="">ici</a></span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
