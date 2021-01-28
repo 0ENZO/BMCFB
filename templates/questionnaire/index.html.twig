@@ -4,13 +4,19 @@
 {% block body %}
 
     <div class="container-fluid">
-        {% if records|length < 1 %}
-            {{ include('questionnaire/not_started.html.twig') }}
-        {% elseif finished and records|length > 1 %}
+
+        {% if finished is defined and finished == true %}
             {{ include('questionnaire/finished.html.twig') }}
-        {% else %}
-            {{ include('questionnaire/in_progress.html.twig') }}
+        {% elseif records is defined %}
+            {% if records|length < 1%}
+                {{ include('questionnaire/not_started.html.twig') }}
+            {% else %}
+                {{ include('questionnaire/in_progress.html.twig') }}
+            {% endif %}
+        {% elseif exception is defined and exception is not null %}
+            {{ include('questionnaire/error.html.twig') }}
         {% endif %}
+        
     </div>
 
 {% endblock %}

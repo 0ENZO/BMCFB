@@ -5,11 +5,10 @@
         <h3 class="my-3">{{ questionnaire.name }} </h3>
 
         <div class="col-md-9 ml-0 px-0 mt-5">
-            <p class="text-justify">{{ questionnaire.summary }}</p>
+            <p class="text-justify">{{ exception }}</p>
         </div>
         
-        <a href="{{ path('questionnaire_play', {'id': next.id}) }}" class="btn btn-primary mt-4 mb-2">Continuer !</a><br>
-        <a href="{{ path('questionnaire_reset', {'slug': questionnaire.slug }) }}" class="btn btn-outline-danger mb-3">Supprimer vos résultats et recommencer</a>
+        <a href="{{ path('home') }}" class="btn btn-primary mt-4">Retour à l'accueil</a>
         
     </div>
     <div class="col-md-4 vh_100_nav d-flex align-items-center sticky-top justify-content-center">

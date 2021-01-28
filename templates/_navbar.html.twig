@@ -10,6 +10,11 @@
         <ul class="navbar-nav ml-auto">
             {% if is_granted('IS_AUTHENTICATED_FULLY') %}
             <div class="dropdown-divider d-md-none"></div>
+            <li class="nav-item mr-5">
+                {% if topic is defined and topic is not null %}
+                    <a href="{{ path('questionnaire_show', {'slug': topic.questionnaire.slug}) }}" class="nav-link btn-light text-dark" style="border-radius: 20px;">Sauvegarder et quitter</a>
+                {% endif %}
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">

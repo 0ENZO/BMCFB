@@ -2,18 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\Questionnaire;
+use App\Entity\Topic;
 use App\Entity\Record;
 use App\Entity\Statement;
-use App\Entity\Topic;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use App\Entity\Questionnaire;
+use App\Repository\RecordRepository;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * @Route("/questionnaire")
+ * @IsGranted("ROLE_USER")
  */
 class QuestionnaireController extends AbstractController
 {
@@ -23,13 +27,22 @@ class QuestionnaireController extends AbstractController
     public function index($slug): Response
     {
         $user = $this->getUser();
-        $records = $this->getDoctrine()->getRepository(Record::class)->findByUser($user);
         $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBy(['slug' => $slug]);  
         $finished = false;
+        $records = $this->getRecordsFromQuestionnaire($questionnaire);
 
-        $next = $this->nextTopic($questionnaire);
-        if ($next == null){
-            $finished = true;
+        try {
+            $next = $this->nextTopic($questionnaire);
+            if ($next == null){
+                $finished = true;
+            }
+        } catch (Exception $e) {
+            //$this->addFlash('warning', $e->getMessage());
+            return $this->render('questionnaire/index.html.twig', [
+                'user' => $user,
+                'questionnaire' => $questionnaire,
+                'exception' => $e->getMessage()
+            ]); 
         }
 
         return $this->render('questionnaire/index.html.twig', [
@@ -85,7 +98,10 @@ class QuestionnaireController extends AbstractController
             $next = $this->nextTopic($questionnaire);
 
             if ($next == null){
-                // return bilan 
+                return $this->render('questionnaire/index.html.twig', [
+                    'finished' => true,
+                    'questionnaire' => $questionnaire
+                ]);
             }else{
                 return $this->redirectToRoute('questionnaire_play', [
                     'id' => $next->getId(),
@@ -108,14 +124,79 @@ class QuestionnaireController extends AbstractController
         $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $next = null;
 
-        if($records){
-            $index = count($records) / count($this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topics[1]]));
-            if($index < count($topics)){
-                $next = $topics[$index+1];
+        if ($topics){
+            if($records){
+                $index = count($records) / count($this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topics[0]]));
+                if($index < count($topics)){
+                    $next = $topics[$index];
+                }
+            }else{
+                $next = $topics[0];
             }
         }else{
-            $next = $topics[0];
+            throw new \Exception("Le questionnaire est en cours de rédaction, aucun thème n'a été trouvé.");
         }
+        
         return $next;
+    }
+
+    /**
+     * Calculate results and display resulsts (canva + text)
+     * @Route("/{slug}/bilan", name="questionnaire_bilan")
+     */
+    public function bilan($slug)
+    {
+        $user = $this->getUser();
+
+        return $this->render('questionnaire/bilan.html.twig', [
+
+        ]);
+    }
+
+    /**
+     * Delete all user records from the questionnaire
+     * @Route("/{slug}/reset", name="questionnaire_reset")
+     */
+    public function reset($slug, RecordRepository $recordRepository)
+    {
+        $user = $this->getUser();
+        $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBySlug($slug);
+        $em = $this->getDoctrine()->getManager();
+
+        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
+
+        foreach ($topics as $topic){
+            $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topic]);
+            foreach ($statements as $statement){
+                $records = $recordRepository->findByStatementAndUser($statement, $user);
+                foreach ($records as $record){
+                    $em->remove($record);
+                }
+            }
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('questionnaire_show', [
+            'slug' => $questionnaire->getSlug()
+        ]);
+    }
+
+
+    private function getRecordsFromQuestionnaire($questionnaire){
+        $user = $this->getUser();
+        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
+        $records = [];
+
+        foreach ($topics as $topic){
+            $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topic]);
+            foreach ($statements as $statement){
+                $record = $this->getDoctrine()->getRepository(Record::class)->findByStatementAndUser($statement, $user);
+                if($record){
+                    array_push($records, $record);
+                }
+            }
+        }
+
+        return $records;
     }
 }

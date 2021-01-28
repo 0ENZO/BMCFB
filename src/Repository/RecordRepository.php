@@ -19,32 +19,16 @@ class RecordRepository extends ServiceEntityRepository
         parent::__construct($registry, Record::class);
     }
 
-    // /**
-    //  * @return Record[] Returns an array of Record objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Record[] Returns an array of Record objects
+     */
+    public function findByStatementAndUser($statement, $user)
     {
         return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('r.id', 'ASC')
-            ->setMaxResults(10)
+            ->where('r.statement = :statement')->setParameter('statement', $statement)
+            ->andWhere('r.user = :user')->setParameter('user', $user)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Record
-    {
-        return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

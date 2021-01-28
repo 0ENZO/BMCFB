@@ -13,14 +13,14 @@
             {{ form_start(form) }}
 
             <div class="row no-gutters">
-                <div class="col-md-11">
+                <div class="col-md-10">
                     {% for statement in statements %}
                         <div class="col-md-10 ml-0 p-1 mb-3" style="border: 1px solid black;">
                             <p class="text-justify">{{ statement.content }}</p>
                         </div>
                     {% endfor %}
                 </div>
-                <div>
+                <div class="col-md-2">
                     {{ form_widget(form) }}
                 </div>
             </div>

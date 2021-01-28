@@ -1,11 +1,13 @@
 <div class="row no-gutters">
     {{ include('_alert.html.twig') }}
     <div class="col-md-8 px-3 py-4 p-md-5 bg-light">
-        
-        <h3 class="my-3">{{ questionnaire.name }} </h3>
+        <h1>Merci pour vos réponses</h1> 
+        <p>Vous avez terminé ce questionnaire et vos réponses sont bien enregistrées.<br>Que souhaitez-vous faire ?</p>
 
-        
+        <a href="{{ path('questionnaire_bilan', {'slug': questionnaire.slug }) }}" class="btn btn-primary mt-4 mb-2">Voir vos résultats</a><br>
+        <a href="{{ path('questionnaire_reset', {'slug': questionnaire.slug }) }}" class="btn btn-outline-danger mb-3">Supprimer vos résultats et recommencer</a>
     </div>
+
     <div class="col-md-4 vh_100_nav d-flex align-items-center sticky-top justify-content-center">
         <img src="{{ asset('/img/logo_bdf.png') }}" alt="logo_md" class="img-fluid" style="flex-shrink: 0; max-height: 80vh;">
     </div>
