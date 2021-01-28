@@ -4,12 +4,53 @@ easy_admin:
             class:  App\Entity\User
         Questionnaires:
             class: App\Entity\Questionnaire
+            list:
+                fields:
+                    - 'id'
+                    - 'name'
+                    - 'slug'
+                    - 'leader.email'
+                    - { property: 'logoName', type: 'image', base_path: '/img/questionnaire' }
+            show: 
+                fields:
+                    - 'name'
+                    - 'slug'
+                    - 'summary'
+                    - 'leader.email'
+            form:
+                fields:
+                    - { property: 'name', label: 'Titre' }
+                    - { property: 'slug', label: "Lien d'accès", help: "Saisir 'monlien' pour activer l'url" }
+                    - { property: 'leader', label: 'Animateur', type_options: { choice_label: 'email' } }                    
+                    - { property: 'summary', label: 'Description'}    
+                    - { property: 'isOpen', label: 'Accessible'}    
+                    - { property: 'topics', label: 'Thèmes'}    
+                    - { property: 'profiles', label: 'Profils manager'}    
+                    - { property: 'logoFile', type: 'vich_image' }
         Themes:
             class: App\Entity\Topic
         Profils:
             class: App\Entity\Profile
         Affirmations:
             class: App\Entity\Statement
+            list:
+                fields:
+                    - 'id'
+                    - 'content'
+                    - 'topic'
+                    - 'records'
+                    - 'profile'
+            show: 
+                fields:
+                    - 'content'
+                    - 'topic'
+                    - 'records'
+                    - 'profile'
+            form:
+                fields:
+                    - 'content'
+                    - 'topic'
+                    - 'profile'
         Enregistrements: 
             class: App\Entity\Record
         Tracks: 

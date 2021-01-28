@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=QuestionnaireRepository::class)
+ * @Vich\Uploadable
  */
 class Questionnaire
 {
