@@ -77,7 +77,6 @@ class QuestionnaireController extends AbstractController
                     'class' => 'text-center'
                 ]
             ]);
-
         }
 
         $form = $formBuilder->getForm();
@@ -111,7 +110,7 @@ class QuestionnaireController extends AbstractController
         
         return $this->render('questionnaire/play.html.twig', [
             'user' => $user,
-            'topic' => $topic, 
+            'topic' => $topic,
             'statements' => $statements,
             'form' => $form->createView()
         ]); 
@@ -134,9 +133,9 @@ class QuestionnaireController extends AbstractController
                 $next = $topics[0];
             }
         }else{
-            throw new \Exception("Le questionnaire est en cours de rédaction, aucun thème n'a été trouvé.");
+            throw new \Exception("Le questionnaire est en cours de rédaction, revenez plus tard.");
         }
-        
+
         return $next;
     }
 
@@ -180,7 +179,6 @@ class QuestionnaireController extends AbstractController
             'slug' => $questionnaire->getSlug()
         ]);
     }
-
 
     private function getRecordsFromQuestionnaire($questionnaire){
         $user = $this->getUser();
