@@ -1,12 +1,96 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ parent() }} - Bilan {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+{% endblock %}
+
 {% block body %}
 
+    {#
+    {% for key,value in userProfiles %}
+        Clé : {{ key }}
+        Valeur : {{ value }}
+    {% endfor %}
+    #}
+        
     <div class="container-fluid">
         {{ include('_alert.html.twig') }}
         <div class="col-md-10 mx-auto">
-            
+            <canvas class="mt-5 p-3" id="myChart" width="625" height="250"></canvas>
         </div>
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js" integrity="sha512-9hzM/Gfa9KP1hSBlq3/zyNF/dfbcjAYwUTBWYX+xi8fzfAPHL3ILwS1ci0CTVeuXTGkRAWgRMZZwtSNV7P+nfw==" crossorigin="anonymous"></script>
+
+    <script>
+        var ctx = document.getElementById('myChart');
+        var myChart = new Chart(ctx, {
+            type: 'horizontalBar',
+            data: {
+                labels: {{ profileNames|raw }},
+                datasets: [{
+                    label: "Total du score",
+                    backgroundColor: "#c45850", 
+                    data: {{ profileRates|raw }},
+                    }]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Résultats Styles de Management',
+                    fontSize: 35,
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            max: 36,
+                            stepSize: 4
+                        }
+                    }]
+                },
+                annotation: {
+                    drawTime: 'afterDatasetsDraw',
+                    annotations: [{
+                        type: 'line',
+                        mode: 'vertical',
+                        scaleID: 'x-axis-0',
+                        value: 18,
+                        borderColor: 'red',
+                        borderWidth: 5,
+                        borderDash: [4,4],
+                        label: {
+                            enabled: true,
+                            position: "top",
+                            content: "Moyenne théorique"
+                        }
+                    },
+                    {
+                        type: 'line',
+                        mode: 'vertical',
+                        scaleID: 'x-axis-0',
+                        value: {{ average|raw|round }},
+                        borderColor: 'blue',
+                        borderWidth: 5,
+                        borderDash: [4,4],
+                        label: {
+                            enabled: true,
+                            position: "bottom",
+                            content: "Moyenne personnelle"
+                        }  
+                    }]
+                }
+            }
+        });
+
+    </script>
+    
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Profile;
 use App\Entity\Topic;
 use App\Entity\Record;
 use App\Entity\Statement;
@@ -146,9 +147,46 @@ class QuestionnaireController extends AbstractController
     public function bilan($slug)
     {
         $user = $this->getUser();
+        $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findBySlug($slug);
+        $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
+        $records = $this->getRecordsFromQuestionnaire($questionnaire);
+
+        $userProfiles = [];
+        $idProfiles = [];
+        $profileRates = [];
+        $profileNames = [];
+
+        foreach($profiles as $profile) {
+            $userProfiles[$profile->getId()] = 0;
+            array_push($idProfiles, $profile->getId());
+            array_push($profileNames, $profile->getTitle());
+        }   
+
+        foreach ($records as $record) {
+            $idProfile = $record[0]->getStatement()->getProfile()->getId();
+            $userProfiles[$idProfile] += $record[0]->getRate();
+        }
+
+        foreach ($userProfiles as $key => $value) {
+            array_push($profileRates, $value);
+        }
+
+        dump($userProfiles);
+        dump($idProfiles);
+        dump($profileRates);
+        dump($profileNames);
+
+        $average = array_sum($profileRates)/count($profileRates);
 
         return $this->render('questionnaire/bilan.html.twig', [
-
+            'user' => $user,
+            'questionnaire' => $questionnaire, 
+            'profiles' => $profiles,
+            'userProfiles' => $userProfiles,
+            'idProfiles' => $idProfiles,
+            'profileRates' => json_encode($profileRates),
+            'profileNames' => json_encode($profileNames),
+            'average' => json_encode($average),
         ]);
     }
 
