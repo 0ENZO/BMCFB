@@ -9,6 +9,9 @@
         </div>
         
         <a href="{{ path('questionnaire_play', {'id': next.id}) }}" class="btn btn-primary mt-4">Commencer !</a>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('questionnaire_fill', {'slug': questionnaire.slug}) }}" class="btn btn-success mt-4">Remplir aléatoirement !</a>
+        {% endif %}
         
     </div>
     <div class="col-md-4 vh_100_nav d-flex align-items-center sticky-top justify-content-center">

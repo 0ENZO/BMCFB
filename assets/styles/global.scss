@@ -68,8 +68,36 @@ body {
   font-size: 30px;
 }
 
+.statement {
+  border: 1px solid black;
+
+  p {
+    text-align: justify;
+  }
+}
+
 @media (max-width: 768px) {
+
   .fixed-btn {
       display: none;
+  }
+
+  .statement{
+    border: 0px;
+    margin-bottom: 0.33rem !important;
+    p {
+      text-align: left;
+    }
+  }
+
+  .statement_rate{
+    margin-bottom: 3rem !important;
+  }
+
+}
+
+@media print {
+  .bilan_footer{
+    display: none !important;
   }
 }

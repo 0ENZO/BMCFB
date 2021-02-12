@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * @Route("/questionnaire")
@@ -146,19 +147,41 @@ class QuestionnaireController extends AbstractController
      */
     public function bilan($slug)
     {
+        
         $user = $this->getUser();
-        $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findBySlug($slug);
+        $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBySlug($slug);
         $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
         $records = $this->getRecordsFromQuestionnaire($questionnaire);
+        $finished = false;
+
+        try {
+            if (is_null($this->nextTopic($questionnaire))){
+                $finished = true;
+            }
+        } catch (Exception $e) {
+            return $this->render('questionnaire/index.html.twig', [
+                'user' => $user,
+                'questionnaire' => $questionnaire,
+                'exception' => $e->getMessage()
+            ]); 
+        }
+
+        if ($finished == false) {
+            $this->addFlash('warning', 'Vous ne pouvez pas accéder à votre bilan tant que vous n\'avez pas finit de compléter le questionnaire');
+            return $this->redirectToRoute('questionnaire_show', [
+                'slug' => $questionnaire->getSlug(),
+            ]);
+        }
 
         $userProfiles = [];
-        $idProfiles = [];
+        $finalUserProfiles = [];
+        //$idProfiles = [];
         $profileRates = [];
         $profileNames = [];
 
         foreach($profiles as $profile) {
             $userProfiles[$profile->getId()] = 0;
-            array_push($idProfiles, $profile->getId());
+            //array_push($idProfiles, $profile->getId());
             array_push($profileNames, $profile->getTitle());
         }   
 
@@ -171,22 +194,27 @@ class QuestionnaireController extends AbstractController
             array_push($profileRates, $value);
         }
 
-        dump($userProfiles);
-        dump($idProfiles);
-        dump($profileRates);
-        dump($profileNames);
-
         $average = array_sum($profileRates)/count($profileRates);
+
+        $max = max($userProfiles);
+        $key = array_search($max, $userProfiles);
+        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
+        unset($userProfiles[$key]);
+
+        $max = max($userProfiles);
+        $key = array_search($max, $userProfiles);
+        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
 
         return $this->render('questionnaire/bilan.html.twig', [
             'user' => $user,
             'questionnaire' => $questionnaire, 
             'profiles' => $profiles,
-            'userProfiles' => $userProfiles,
-            'idProfiles' => $idProfiles,
+            //'userProfiles' => $userProfiles,
+            //'idProfiles' => $idProfiles,
             'profileRates' => json_encode($profileRates),
             'profileNames' => json_encode($profileNames),
             'average' => json_encode($average),
+            'userProfiles' => $finalUserProfiles
         ]);
     }
 
@@ -234,5 +262,53 @@ class QuestionnaireController extends AbstractController
         }
 
         return $records;
+    }
+
+    /**
+     * Fonction qui permet à un admin de remplir le questionnaire aléatoirement
+     * @IsGranted("ROLE_ADMIN")
+     * @Route("/complete/{slug}", name="questionnaire_fill")
+     */
+    public function fillRandomly($slug){
+
+        $user = $this->getUser();
+        $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBySlug($slug);
+        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
+        $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topics[0]]);  
+        $em = $this->getDoctrine()->getManager();
+
+        $records = $this->getRecordsFromQuestionnaire($questionnaire);
+        if ($records) {
+            $this->addFlash('warning', 'Vous devez supprimer vos résultats pour pouvoir générer des réponses aléatoires');
+
+            return $this->redirectToRoute('questionnaire_show', [
+                'slug' => $slug,
+            ]);
+        }
+
+        $rates = ["0","2","4","6"];
+
+        for ($i=0; $i < count($statements)-4 ; $i++) { 
+            array_push($rates, rand(0,6));
+        }
+        
+        foreach ($topics as $topic) {
+            $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topic]);  
+            foreach ($statements as $statement) {
+                $record = new Record();
+                $record->setUser($user);
+                $record->setStatement($statement);
+                $record->setRate($rates[rand(0, count($statements)-1)]);
+                $record->setDate(new \DateTime());
+                $em->persist($record);
+            }
+        }
+
+        $em->flush();
+        $this->addFlash('info', 'Le questionnaire a bien été rempli aléatoirement');
+
+        return $this->redirectToRoute('questionnaire_show', [
+            'slug' => $slug,
+        ]);
     }
 }

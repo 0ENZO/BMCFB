@@ -14,11 +14,11 @@
             <div class="d-flex row justify-content-center align-items-center">
                 {% set i = 0 %}
                 {% for statement in statements %}
-                    <div class="col-md-10 ml-0 p-1 mb-3" style="border: 1px solid black;">
-                        <p class="text-justify">{{ statement.content }}</p>
+                    <div class="col-md-10 ml-0 p-1 mb-3 statement">
+                        <p>{{ statement.content }}</p>
                     </div>
 
-                    <div class="col-md-2 mb-3">
+                    <div class="col-md-2 mb-3 statement_rate">
                         {% if attribute(form, 'record' ~ i ) is defined and attribute(form, 'record' ~ i ) is not null %}
                             {{ form_widget(attribute(form, 'record' ~ i )) }}
                         {% endif %}
@@ -57,9 +57,11 @@
                 if (isCorrectlyFill()){
                     $( "#submitRecords" ).removeAttr('disabled');
                     $( "#spanSubmitRecords" ).addClass( "d-none");
+                    //console.log('bien rempli');
                 }else{
                     $( "#submitRecords" ).attr('disabled', 'true');
                     $( "#spanSubmitRecords" ).removeClass( "d-none" );
+                    //console.log('pas bien rempli');
                 }
             });
         });
@@ -74,14 +76,18 @@
 
             if (formResults.length == inputs.length -1) {
                 for (let i = 0; i < goodAnswers.length; i++) { 
+                    //console.log('valeur cherchée : ' +  goodAnswers[i]);
+
                     if ( !((formResults.indexOf(goodAnswers[i]) > -1)) ){
                         return false;
+                        //console.log('valeur pas trouvée');
                         break;
                     }
-                    return true;
+                    //console.log('valeur trouvée');
                 }
+                return true;
             } else {
-                console.log('Toutes les phrases doivent être notées.');
+                //console.log('Toutes les phrases doivent être notées.');
             }
             // if( !(["0","2","4","6"].includes(inputs[i].value)) ) {
         }
