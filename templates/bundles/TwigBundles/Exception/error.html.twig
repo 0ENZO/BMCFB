@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }}{% endblock %}
+
+{% block body %}
+
+<div class="row no-gutters d-flex align-items-center">
+    {{ include('_alert.html.twig') }}
+    <div class="col-md-8 px-3 py-4 p-md-5 bg-light align-middle">
+        <h1 class="text_bigger_responsive font-weight-bold mb-3">Oups !</h1>
+        <h2 class="text_big_responsive mb-3 mb-md-5">Un problème est survenu</h2>
+        <p>Le serveur a renvoyé les informations suivantes : "{{ status_code }} : {{ status_text }}". N'hésitez pas à nous informer du problème.</p>
+        {% if exception.message %}
+            <p>{{ exception.message }}</p>
+        {% endif %}
+        <a class="btn btn-primary my-4" href="{{ path('home') }}">Retour à l'accueil</a><br>
+    </div>
+    <div class="col-md-4 vh_100_nav d-flex align-items-center sticky-top justify-content-center">
+        <img src="{{ asset('/img/error.png') }}" alt="logo_md" class="img-fluid" style="flex-shrink: 0; max-height: 80vh;">
+    </div>
+</div>
+
+{% endblock %}
