@@ -8,40 +8,29 @@
 
 {% block body %}
 
-    {#
-    {% for key,value in userProfiles %}
-        Clé : {{ key }}
-        Valeur : {{ value }}
-    {% endfor %}
-    #}
-        
     <div class="container-fluid">
         {{ include('_alert.html.twig') }}
         <div class="col-md-10 mx-auto">
-            <canvas class="mt-5 p-3" id="myChart" width="625" height="250"></canvas>
 
-            {% for userProfile in userProfiles %}
-                <div class="mt-5">
-                    <h3 class="text-left mb-2">{{ userProfile.title }}</h3>
-                    <p class="text-justify">
-                        {{ userProfile.content}}
-                    </p>
-                </div>
-                <hr class="mt-3 mb-5">
-            {% endfor %}
+            <div class="chart-container mb-5" style="position: relative; height:60vh; width:80vw">
+                <canvas class="" id="profilesChart"></canvas>
+            </div>
+
+            <div class="chart-container mb-5" style="position: relative; height:60vh; width:80vw">
+                <canvas class="" id="axisChart"></canvas>
+            </div>
+
+            <hr>
 
             <div class="row bilan_footer">
                 <div class="col-md-7 mt-3">
                     <p><strong>Vos résultats sont enregistrés</strong> si vous souhaitez y revenir ultérieurement. Vous pourrez
-                        également refaire le test plus tard, et ainsi auto-évaluer votre progression sur les différents items.</p>
+                        également refaire le test plus tard, et ainsi auto-évaluer votre progression. L'explication de vos résultats vous sera donnée lors de votre entretien.</p>
                 </div>
             
                 <div class="col-md-5 text-right mt-3">
-            
-                    <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" disabled> Envoi par mail </button>
                     
-                    <!-- Modal -->
                     <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                             <div class="modal-content">
@@ -64,7 +53,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="javascript:window.print()" class="btn btn-primary">Imprimer cette page</a>
+                    <a href="javascript:window.print();" class="btn btn-primary">Imprimer cette page</a>
                 </div>
             </div>
         </div>
@@ -72,13 +61,13 @@
 
 {% endblock %}
 
-{% block javascripts %}
+{% block javascripts %} 
     {{ parent() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js" integrity="sha512-9hzM/Gfa9KP1hSBlq3/zyNF/dfbcjAYwUTBWYX+xi8fzfAPHL3ILwS1ci0CTVeuXTGkRAWgRMZZwtSNV7P+nfw==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js" integrity="sha512-9hzM/Gfa9KP1hSBlq3/zyNF/dfbcjAYwUTBWYX+xi8fzfAPHL3ILwS1ci0CTVeuXTGkRAWgRMZZwtSNV7P+nfw==" crossorigin="anonymous"></script>
 
-    <script>
-        var ctx = document.getElementById('myChart');
+    <script name="profilesChart">
+        var ctx = document.getElementById('profilesChart');
         var myChart = new Chart(ctx, {
             type: 'horizontalBar',
             data: {
@@ -90,6 +79,8 @@
                     }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 legend: { display: false },
                 title: {
                     display: true,
@@ -101,8 +92,8 @@
                         ticks: {
                             beginAtZero: true,
                             max: 36,
-                            stepSize: 4
-                        }
+                            stepSize: 4,
+                        },
                     }]
                 },
                 annotation: {
@@ -141,4 +132,29 @@
 
     </script>
     
+    <script name="axisChart">
+
+        var ctx2 = document.getElementById('axisChart');
+        var myChart = new Chart(ctx2, {
+            type: 'polarArea',
+            data: {
+                labels: {{ axisNames|raw }},
+                datasets: [{
+                    label: "Population (millions)",
+                    backgroundColor: ["rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235"],
+                    data: {{ axisRates|raw }},
+                    }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display : true,
+                    text: 'Moyenne des différents axes de management',
+                    fontSize: 35,
+                }
+            }
+        });
+
+    </script>
 {% endblock %}

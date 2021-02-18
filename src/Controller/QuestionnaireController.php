@@ -31,7 +31,7 @@ class QuestionnaireController extends AbstractController
         $user = $this->getUser();
         $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBy(['slug' => $slug]);  
         $finished = false;
-        $records = $this->getRecordsFromQuestionnaire($questionnaire);
+        $records = $this->getUserRecordsFromQuestionnaire($questionnaire);
 
         try {
             $next = $this->nextTopic($questionnaire);
@@ -151,7 +151,7 @@ class QuestionnaireController extends AbstractController
         $user = $this->getUser();
         $questionnaire = $this->getDoctrine()->getRepository(Questionnaire::class)->findOneBySlug($slug);
         $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
-        $records = $this->getRecordsFromQuestionnaire($questionnaire);
+        $records = $this->getUserRecordsFromQuestionnaire($questionnaire);
         $finished = false;
 
         try {
@@ -174,14 +174,11 @@ class QuestionnaireController extends AbstractController
         }
 
         $userProfiles = [];
-        $finalUserProfiles = [];
-        //$idProfiles = [];
         $profileRates = [];
         $profileNames = [];
 
         foreach($profiles as $profile) {
             $userProfiles[$profile->getId()] = 0;
-            //array_push($idProfiles, $profile->getId());
             array_push($profileNames, $profile->getTitle());
         }   
 
@@ -193,28 +190,23 @@ class QuestionnaireController extends AbstractController
         foreach ($userProfiles as $key => $value) {
             array_push($profileRates, $value);
         }
-
+        
         $average = array_sum($profileRates)/count($profileRates);
 
-        $max = max($userProfiles);
-        $key = array_search($max, $userProfiles);
-        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
-        unset($userProfiles[$key]);
-
-        $max = max($userProfiles);
-        $key = array_search($max, $userProfiles);
-        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
+        $axisNames = ["sens", "systeme", "social", "coherence"];
+        $axisRates = [];
+        foreach ($axisNames as $name){
+            array_push($axisRates, $this->getAxisAverage($name, $profiles, $userProfiles));
+        }
 
         return $this->render('questionnaire/bilan.html.twig', [
             'user' => $user,
             'questionnaire' => $questionnaire, 
-            'profiles' => $profiles,
-            //'userProfiles' => $userProfiles,
-            //'idProfiles' => $idProfiles,
-            'profileRates' => json_encode($profileRates),
             'profileNames' => json_encode($profileNames),
+            'profileRates' => json_encode($profileRates),
             'average' => json_encode($average),
-            'userProfiles' => $finalUserProfiles
+            'axisNames' => json_encode($axisNames),
+            'axisRates' => json_encode($axisRates)
         ]);
     }
 
@@ -246,7 +238,11 @@ class QuestionnaireController extends AbstractController
         ]);
     }
 
-    private function getRecordsFromQuestionnaire($questionnaire){
+    /**
+     * Pour chaque question lié à un questionnaire, récupère la réponse associée de l'utilisateur 
+     * @param [type] $questionnaire
+     */
+    private function getUserRecordsFromQuestionnaire($questionnaire){
         $user = $this->getUser();
         $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $records = [];
@@ -277,7 +273,7 @@ class QuestionnaireController extends AbstractController
         $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topics[0]]);  
         $em = $this->getDoctrine()->getManager();
 
-        $records = $this->getRecordsFromQuestionnaire($questionnaire);
+        $records = $this->getUserRecordsFromQuestionnaire($questionnaire);
         if ($records) {
             $this->addFlash('warning', 'Vous devez supprimer vos résultats pour pouvoir générer des réponses aléatoires');
 
@@ -310,5 +306,73 @@ class QuestionnaireController extends AbstractController
         return $this->redirectToRoute('questionnaire_show', [
             'slug' => $slug,
         ]);
+    }
+
+    /**
+     * Renvoie les deux profils les plus présents chez l'utilisateur (ex: Réaliste et Formateur)
+     * @param [type] $userProfiles
+     * @return void
+     */
+    private function getLargestProfiles(array $userProfiles)
+    {
+        $finalUserProfiles = [];
+
+        $max = max($userProfiles);
+        $key = array_search($max, $userProfiles);
+        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
+        unset($userProfiles[$key]);
+
+        $max = max($userProfiles);
+        $key = array_search($max, $userProfiles);
+        array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
+
+        return $finalUserProfiles;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $axis
+     * @param array $profiles
+     * @param array $userProfiles
+     * @return int
+     */
+    private function getAxisAverage(string $axis, array $profiles, array $userProfiles)
+    {
+        $result = 0;
+
+        if (strcmp(trim(strtolower($axis)), 'sens') == 0 ){
+
+            $key = array_search('Entrepreneur', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Directif', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+
+        }elseif (strcmp(trim(strtolower($axis)), 'systeme') == 0) {
+
+            $key = array_search('Réaliste', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Improvisateur', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+
+        }elseif (strcmp(trim(strtolower($axis)), 'social') == 0) {
+
+            $key = array_search('Participatif', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Arrangeant ou conciliant', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+
+        }elseif (strcmp(trim(strtolower($axis)), 'coherence') == 0) {
+
+            $key = array_search('Organisateur', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Formaliste', $profiles);
+            $result += $userProfiles[$profiles[$key]->getId()];
+
+        }else{
+            return new \Exception('Aucun axe correspondant n\'a été trouvé');
+        }
+
+        return round($result/2);
     }
 }
