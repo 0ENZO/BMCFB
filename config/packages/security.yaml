@@ -4,9 +4,8 @@ security:
             algorithm: auto
 
     role_hierarchy:
-        ROLE_AUTHOR: ROLE_USER 
-        ROLE_EDITOR: [ROLE_USER, ROLE_AUTHOR]
-        ROLE_ADMIN:  [ROLE_USER, ROLE_AUTHOR, ROLE_EDITOR]
+        ROLE_COACH: ROLE_USER 
+        ROLE_ADMIN:  [ROLE_USER, ROLE_COACH]
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:

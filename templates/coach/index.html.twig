@@ -4,6 +4,7 @@
 {% block body %}
 
     <div class="container-fluid">
+        {{ include('_alert.html.twig') }}
         <div class="col-md-10 mx-auto my-5">
             <div class="d-flex row justify-content-between">
                 <h2>LES QUESTIONNAIRES DISPONIBLES :</h2>
@@ -27,7 +28,10 @@
                             <p class="card-text">{{ questionnaire.summary|length > '130'? questionnaire.summary|slice(0, 130)~'..': questionnaire.summary }}</p>
                         </div>
                         <div class="card-footer">
-                            <small class=""><a href="">Voir le questionnaire</a></small>
+                            <div class="d-flex justify-content-between">
+                                <small class=""><a href="">Voir le questionnaire</a></small>
+                                <small class=""><a href="{{ path('coach_results', {'id': questionnaire.id }) }}">Voir les résultats</a></small>
+                            </div>
                         </div>
                     </div>
 

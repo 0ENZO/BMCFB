@@ -31,4 +31,34 @@ class RecordRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * @return Record[] Returns an array of Record objects
+     */
+    public function findByTopicAndUsers($topic, $users)
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.statement', 's')
+            ->andWhere('s.topic = :topic')->setParameter('topic', $topic)
+            ->andWhere('r.user IN (:users)')->setParameter('users', $users)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return Record[] Returns an array of Record objects
+     */
+    public function findByTopicsAndUsers($topics, $users)
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.statement', 's')
+            ->andWhere('s.topic IN (:topics)')->setParameter('topics', $topics)
+            ->andWhere('r.user IN (:users)')->setParameter('users', $users)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
+
+

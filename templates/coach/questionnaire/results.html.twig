@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Résultats {{ questionnaire.slug }} {% endblock %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="col-md-10 mx-auto my-5">
+            <div class="d-flex row justify-content-center">
+                <h2>{{ questionnaire.name }}</h2>
+            </div>
+            <hr>
+            <div class="d-flex row">
+                <div class="col-md-6 align-items-center">
+                    {% for user in users %}
+                        <div class="d-flex justify-content-between align-items-center listUsers my-4 px-3">
+                            <div>
+                                <img class="mr-2 rounded-circle" src="https://ui-avatars.com/api/?background=0D8ABC&color=fff&name={{ user.email }}&length=1"
+                                    alt="Generic placeholder image" height="35" width="35">
+        
+                                {% if user.firstName is defined and user.firstName is not null and user.lastName is defined and user.lastName is not null %}
+                                    <span class="text_small_responsive"> {{ user.firstName }} {{ user.lastName }}</span>
+                                {% else %}
+                                    <span class="text_small_responsive">{{ user.email }}</span>
+                                {% endif %}
+                            </div>
+    
+                            <a href="#" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">
+                                <i class="fas fa-eye"></i>
+                            </a>
+    
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex align-items-center mx-auto">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Moyenne de tous les résultats</th>
+                                  </tr>
+                            </thead>
+
+                            {% for i in 0..rates|length - 1%}
+                                <tr>
+                                    <th>{{ names[i]|capitalize }}</th>
+                                    <td>{{ rates[i] }}</td>
+                                </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
