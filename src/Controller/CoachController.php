@@ -243,6 +243,11 @@ class CoachController extends AbstractController
     /**
      * Retourne l'indice de fiabilité des résultats du questionnaire,
      * soit la somme des écarts en valeur absolue entre les résultats d'un profil et son suivant
+     *  
+     * (0,4) ENTREPRENANT - DIRECTIF	
+        (1,6) REALISTE - IMPROVISATEUR	
+        (2,5) PARTICIPATIF - ARRANGEANT	
+        (3,7)  ORGANISATEUR - FORMALISTE	
      * @param [type] $questionnaire
      * @return int
      */
@@ -252,14 +257,22 @@ class CoachController extends AbstractController
         $abs = [];
 
         if (count($records) % 2 == 0) {
-
             for ($i=0; $i < count($records) / 2; $i++) { 
                 array_push($abs, 0);
             }
 
-            for ($i=0; $i < count($records); $i+=2) { 
+            /* for ($i=0; $i < count($records); $i+=2) { 
                 $abs[$i/2] = abs($records[$i] - $records[$i + 1]);
-            }
+            } */
+
+            $j = 0;
+            $abs[$j] = abs($records[$j] - $records[$j+4]);
+            $j++;
+            $abs[$j] = abs($records[$j] - $records[$j+5]);
+            $j++;
+            $abs[$j] = abs($records[$j] - $records[$j+3]);
+            $j++;
+            $abs[$j] = abs($records[$j] - $records[$j+4]);
         }
         
         return array_sum($abs);
