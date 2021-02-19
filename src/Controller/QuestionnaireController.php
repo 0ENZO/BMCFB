@@ -35,7 +35,7 @@ class QuestionnaireController extends AbstractController
         array_push($users, $user);
 
         $finished = false;
-        $records = $userResultService->getUserRecordsFromQuestionnaire($questionnaire, $users);
+        $records = $userResultService->getUsersRecordsFromQuestionnaire($questionnaire, $users);
 
         try {
             $next = $this->nextTopic($questionnaire);
@@ -232,7 +232,7 @@ class QuestionnaireController extends AbstractController
         $users = [];
         array_push($users, $user);
 
-        $records = $userResultService->getUserRecordsFromQuestionnaire($questionnaire, $users);
+        $records = $userResultService->getUsersRecordsFromQuestionnaire($questionnaire, $users);
         if ($records) {
             $this->addFlash('warning', 'Vous devez supprimer vos résultats pour pouvoir générer des réponses aléatoires');
 

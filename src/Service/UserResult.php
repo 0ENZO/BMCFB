@@ -22,7 +22,7 @@ class UserResult
      * @return mixed
      */
     /*
-    public function getUserRecordsFromQuestionnaire($questionnaire, $user)
+    public function getUsersRecordsFromQuestionnaire($questionnaire, $user)
     {
         $topics = $this->em->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $records = [];
@@ -49,7 +49,7 @@ class UserResult
      * @param [type] $users
      * @return void
      */
-    public function getUserRecordsFromQuestionnaire($questionnaire, $users)
+    public function getUsersRecordsFromQuestionnaire($questionnaire, $users)
     {
         $topics = $this->em->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $records = $this->em->getRepository(Record::class)->findByTopicsAndUsers($topics, $users);
@@ -159,7 +159,7 @@ class UserResult
         $users = [];
         array_push($users, $user);
         $profiles = $this->em->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
-        $records = $this->getUserRecordsFromQuestionnaire($questionnaire, $users);
+        $records = $this->getUsersRecordsFromQuestionnaire($questionnaire, $users);
 
         $userProfiles = [];
         $profileRates = [];

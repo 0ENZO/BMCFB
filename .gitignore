@@ -1,7 +1,7 @@
 
 /.env
 .DS_Store
-
+deploy
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
