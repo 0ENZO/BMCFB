@@ -8,6 +8,7 @@ use App\Entity\Record;
 use App\Entity\Profile;
 use App\Entity\Statement;
 use App\Entity\Questionnaire;
+use App\Service\UserResult;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -34,37 +35,33 @@ class CoachController extends AbstractController
     /**
      * @Route("/{id}/results", name="coach_results", requirements={"questionnaire"="\d+"})
      */
-    public function results(Questionnaire $questionnaire)
+    public function results(Questionnaire $questionnaire, UserResult $userResultService)
     {
         $users = $this->getQuestionnaireGoodStudents($questionnaire);
 
         if($users){
-
             $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
-            $rates = $this->getQuestionnaireResults($questionnaire);
+            $rates = $this->getQuestionnaireProfilesResults($questionnaire);
             $names = [];
 
             foreach($profiles as $profile) {
                 array_push($names, $profile->getTitle());
             }   
 
-            $this->getQuestionnairesRecords($questionnaire);
+            $axisNames = ["sens", "systeme", "social", "coherence"];
+            foreach ($axisNames as $axis){
+                array_push($names, $axis);
+                array_push($rates, $this->getAxisAverage($axis, $names, $rates));
+            }
 
-            $index = ["3","9","17","25","36","43"];
-            $type = "leadership";
-            array_push($names, $type);
-            array_push($rates, $this->getAverageRecords($questionnaire, $index, $type));
+            array_push($names, "Leadership");
+            array_push($rates, $userResultService->getLeadershipIndex($this->getQuestionnairesAverageResults($questionnaire)));
 
-            $index = ["1", "2", "10", "12", "18", "19", "26", "27", "33", "34", "43", "44"];
-            $type = "management";
-            array_push($names, $type);
-            array_push($rates, $this->getAverageRecords($questionnaire, $index, $type));
+            array_push($names, "Management");
+            array_push($rates, $userResultService->getManagementIndex($this->getQuestionnairesAverageResults($questionnaire)));
 
-            $type = "fiabilité";
-            array_push($names, $type);
-            array_push($rates, $this->getFiabilityIndex($questionnaire));
-
-            $this->getFiabilityIndex($questionnaire);
+            array_push($names, "Fiabilité");
+            array_push($rates, $userResultService->getFiabilityIndex($rates));
 
             return $this->render('coach/questionnaire/results.html.twig', [
                 'questionnaire' => $questionnaire,
@@ -76,9 +73,48 @@ class CoachController extends AbstractController
             $this->addFlash('warning', 'Le questionnaire est en cours de rédaction, impossible de visualiser les résultats.');
             return $this->redirectToRoute('coach_index');
         }
-
     }
     
+    /**
+     * @Route("/new/{id}/{header}", name="module_new", methods={"GET","POST"})
+     * @IsGranted("ROLE_USER")
+    */
+    //public function new(Request $request, Course $course, ModuleRepository $moduleRepository, $header = 0): Response
+
+    /**
+     * @Route("/{id}/{email}/results", name="user_results")
+     */
+    public function user_result(Questionnaire $questionnaire, $email, UserResult $userResultService)
+    {
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneByEmail($email);
+        $finalResults = $userResultService->getUserResultsFromQuestionnaire($questionnaire, $user);
+
+        $profileNames = $finalResults[0];
+        $profileRates = $finalResults[1];
+        $axisNames = $finalResults[3];
+        $axisRates = $finalResults[4];
+        $indexNames = ["Leadership", "Management", "Fiabilité"];
+        $indexRates = [];
+
+        $users = [];
+        array_push($users, $user);
+
+        array_push($indexRates, $userResultService->getLeadershipIndex($userResultService->getUserRecordsRatesFromQuestionnaire($questionnaire, $users)));
+        array_push($indexRates, $userResultService->getManagementIndex($userResultService->getUserRecordsRatesFromQuestionnaire($questionnaire, $users)));
+        array_push($indexRates, $userResultService->getFiabilityIndex($profileRates));
+
+        return $this->render('coach/user/results.html.twig', [
+            'user' => $user,
+            'questionnaire' => $questionnaire, 
+            'profileNames' => $profileNames,
+            'profileRates' => $profileRates,
+            'axisNames' => $axisNames,
+            'axisRates' => $axisRates,
+            'indexNames' => $indexNames,
+            'indexRates' => $indexRates
+        ]);
+    }
+
     /**
      * Retourne la liste des users ayant terminé le questionnaire
      * @param [type] $questionnaire
@@ -102,14 +138,13 @@ class CoachController extends AbstractController
      * @param [type] $questionnaire
      * @return 
      */
-    private function getQuestionnaireResults($questionnaire){
+    private function getQuestionnaireProfilesResults($questionnaire){
 
         $users = $this->getQuestionnaireGoodStudents($questionnaire);
-        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
+        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $records = $this->getDoctrine()->getRepository(Record::class)->findByTopicsAndUsers($topics, $users);
-        
-        // initialise un tableau de notes de taille(nb de profiles) à 0
+
         $rates = [];
         for ($i=0; $i < count($profiles); $i++) { 
             array_push($rates, 0);
@@ -126,7 +161,7 @@ class CoachController extends AbstractController
         } 
 
         for ($i=0; $i < count($rates); $i++) { 
-            $rates[$i] = round($rates[$i] / count($users));
+            $rates[$i] = intval(round($rates[$i] / count($users)));
         }
 
         return $rates;
@@ -135,55 +170,55 @@ class CoachController extends AbstractController
     /**
      *
      * @param string $axis
-     * @param array $profiles
+     * @param array $names
      * @param array $userProfiles
      * @return int
      */
-    private function getAxisAverage(string $axis, array $profiles, array $userProfiles)
+    private function getAxisAverage(string $axis, array $names, array $rates)
     {
         $result = 0;
 
         if (strcmp(trim(strtolower($axis)), 'sens') == 0 ){
 
-            $key = array_search('Entrepreneur', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
-            $key = array_search('Directif', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Entrepreneur', $names);
+            $result += $rates[$key];
+            $key = array_search('Directif', $names);
+            $result += $rates[$key];
 
         }elseif (strcmp(trim(strtolower($axis)), 'systeme') == 0) {
 
-            $key = array_search('Réaliste', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
-            $key = array_search('Improvisateur', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Réaliste', $names);
+            $result += $rates[$key];
+            $key = array_search('Improvisateur', $names);
+            $result += $rates[$key];
 
         }elseif (strcmp(trim(strtolower($axis)), 'social') == 0) {
 
-            $key = array_search('Participatif', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
-            $key = array_search('Arrangeant ou conciliant', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Participatif', $names);
+            $result += $rates[$key];
+            $key = array_search('Arrangeant ou conciliant', $names);
+            $result += $rates[$key];
 
         }elseif (strcmp(trim(strtolower($axis)), 'coherence') == 0) {
 
-            $key = array_search('Organisateur', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
-            $key = array_search('Formaliste', $profiles);
-            $result += $userProfiles[$profiles[$key]->getId()];
+            $key = array_search('Organisateur', $names);
+            $result += $rates[$key];
+            $key = array_search('Formaliste', $names);
+            $result += $rates[$key];
 
         }else{
             return new \Exception('Aucun axe correspondant n\'a été trouvé');
         }
 
-        return round($result/2);
+        return intval(round($result/2));
     }
 
     /**
-     * Retourne la moyenne de chaque record 
+     * Retourne la moyenne générale des records pour chaque statement
      *
      * @param [type] $questionnaire
      */
-    private function getQuestionnairesRecords($questionnaire)
+    private function getQuestionnairesAverageResults($questionnaire)
     {
         $users = $this->getQuestionnaireGoodStudents($questionnaire);
         $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
@@ -206,7 +241,7 @@ class CoachController extends AbstractController
         } 
 
         for ($i=0; $i < $size; $i++) { 
-            $condensedRecords[$i] = round($condensedRecords[$i] / count($users));
+            $condensedRecords[$i] = intval(round($condensedRecords[$i] / count($users)));
         }
 
         return $condensedRecords;
@@ -221,7 +256,7 @@ class CoachController extends AbstractController
      */
     private function getAverageRecords($questionnaire, array $index, string $type = null)
     {
-        $records = $this->getQuestionnairesRecords($questionnaire);
+        $records = $this->getQuestionnairesAverageResults($questionnaire);
         $result = 0;
 
         for ($i=0; $i < count($index); $i++) { 
@@ -230,72 +265,12 @@ class CoachController extends AbstractController
 
         if($type){
             if (strcmp(trim(strtolower($type)), 'leadership') == 0 ){
-                $result = round($result / 3.6);
+                $result = intval(round($result / 3.6));
             } elseif (strcmp(trim(strtolower($type)), 'management') == 0 ) {
-                $result = round($result / 7.2);
+                $result = intval(round($result / 7.2));
             }
         }
 
         return $result;
-    }
-
-
-    /**
-     * Retourne l'indice de fiabilité des résultats du questionnaire,
-     * soit la somme des écarts en valeur absolue entre les résultats d'un profil et son suivant
-     *  
-     * (0,4) ENTREPRENANT - DIRECTIF	
-        (1,6) REALISTE - IMPROVISATEUR	
-        (2,5) PARTICIPATIF - ARRANGEANT	
-        (3,7)  ORGANISATEUR - FORMALISTE	
-     * @param [type] $questionnaire
-     * @return int
-     */
-    private function getFiabilityIndex($questionnaire)
-    {
-        $records = $this->getQuestionnaireResults($questionnaire);
-        $abs = [];
-
-        if (count($records) % 2 == 0) {
-            for ($i=0; $i < count($records) / 2; $i++) { 
-                array_push($abs, 0);
-            }
-
-            /* for ($i=0; $i < count($records); $i+=2) { 
-                $abs[$i/2] = abs($records[$i] - $records[$i + 1]);
-            } */
-
-            $j = 0;
-            $abs[$j] = abs($records[$j] - $records[$j+4]);
-            $j++;
-            $abs[$j] = abs($records[$j] - $records[$j+5]);
-            $j++;
-            $abs[$j] = abs($records[$j] - $records[$j+3]);
-            $j++;
-            $abs[$j] = abs($records[$j] - $records[$j+4]);
-        }
-        
-        return array_sum($abs);
-    }
-
-    /**
-     *
-     * @param [type] $questionnaire
-     * @return Record[] 
-     */
-    private function getAllQuestionnaireRecords($questionnaire){
-        $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
-        $records = [];
-
-        foreach ($topics as $topic){
-            $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topic]);
-            foreach ($statements as $statement){
-                $record = $this->getDoctrine()->getRepository(Record::class)->findByStatement($statement);
-                if($record){
-                    array_push($records, $record);
-                }
-            }
-        }
-        return $records;
-    }
+    }    
 }

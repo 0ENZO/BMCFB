@@ -23,8 +23,7 @@
                                     <span class="text_small_responsive">{{ user.email }}</span>
                                 {% endif %}
                             </div>
-    
-                            <a href="#" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">
+                            <a href="{{ path('user_results', {'id': questionnaire.id, 'email': user.email}) }}" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">
                                 <i class="fas fa-eye"></i>
                             </a>
     

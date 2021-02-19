@@ -29,8 +29,8 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-between">
-                                <small class=""><a href="">Voir le questionnaire</a></small>
-                                <small class=""><a href="{{ path('coach_results', {'id': questionnaire.id }) }}">Voir les résultats</a></small>
+                                <small class=""><a href="{{ path('questionnaire_show', {'slug': questionnaire.slug}) }}">Voir le questionnaire</a></small>
+                                <small class=""><a href="{{ path('coach_results', {'id': questionnaire.id}) }}">Voir les résultats</a></small>
                             </div>
                         </div>
                     </div>
