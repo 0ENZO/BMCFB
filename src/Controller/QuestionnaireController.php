@@ -66,9 +66,13 @@ class QuestionnaireController extends AbstractController
     public function play(Topic $topic, Request $request): Response
     {
         $user = $this->getUser();
-        $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topic]);  
-        $questionnaire = $topic->getQuestionnaire();
         $em = $this->getDoctrine()->getManager();
+        $statements = $em->getRepository(Statement::class)->findBy(['topic' => $topic]);  
+        $questionnaire = $topic->getQuestionnaire();
+        $topics = $em->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
+        $maxTopic = count($topics);
+        $currentTopic = array_search($topic, $topics) + 1;
+
 
         $formBuilder = $this->createFormBuilder($statements);
         foreach($statements as $key => $val){
@@ -78,8 +82,8 @@ class QuestionnaireController extends AbstractController
                     'min' => 0,
                     'max'=> 6,
                     'step' => 2,
-                    'placeholder' => '0 à 6',
-                    'class' => 'text-center'
+                    'placeholder' => "0-6",
+                    'class' => 'text-muted inputRecord'
                 ]
             ]);
         }
@@ -113,11 +117,13 @@ class QuestionnaireController extends AbstractController
             }
         }
         
-        return $this->render('questionnaire/play.html.twig', [
+        return $this->render('questionnaire/play2.html.twig', [
             'user' => $user,
             'topic' => $topic,
             'statements' => $statements,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'currentTopic' => $currentTopic,
+            'maxTopic' => $maxTopic
         ]); 
     }
 

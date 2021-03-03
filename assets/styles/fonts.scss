@@ -44,8 +44,20 @@ h1, h2, h3, h4 {
 @media (min-width: 992px) { #landing_page .type_js { min-height: calc(2.75rem * 2.5); } }
 @media (min-width: 1200px) { #landing_page .type_js { min-height: calc(3rem * 2.5); } }
 
+.font_size_500 {
+    font-size: 0.5rem; 
+}
+
+.font_size_750 {
+    font-size: 0.750rem; 
+}
+
 .font_size_875 {
     font-size: 0.875rem; /* 14px */
+}
+
+.font_size_1000 {
+    font-size: 1rem; /* 14px */
 }
 
 .font_size_1250 {
