@@ -117,7 +117,7 @@ class QuestionnaireController extends AbstractController
             }
         }
         
-        return $this->render('questionnaire/play2.html.twig', [
+        return $this->render('questionnaire/play.html.twig', [
             'user' => $user,
             'topic' => $topic,
             'statements' => $statements,

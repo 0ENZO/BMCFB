@@ -93,7 +93,8 @@ body {
   }
 
   .statement_rate{
-    margin-bottom: 3rem !important;
+    margin-bottom: 1rem !important;
+    justify-content: space-between;
   }
 
 }
@@ -210,13 +211,30 @@ body {
   top: 0;
   right: 0;
 }
+@media (min-width: 768px) {
+  .inputRecord.form-control{
+    min-width: 56px!important;
+    width: auto!important;
+  }
 
-.inputRecord.form-control{
-  min-width: 56px!important;
-  width: auto!important;
+  .recordContainer{
+    justify-content: space-between;
+    align-self: center;
+  }
+  
+  .statementContainer{
+    justify-content: space-between;
+    align-self: center ;
+  }
 }
 
 .textInput{
   color: #2f3b73;
   font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .statement2{
+    justify-content: center;
+  }
 }

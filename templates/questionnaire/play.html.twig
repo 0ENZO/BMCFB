@@ -1,76 +1,169 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ parent() }} - {{ topic.title }} {% endblock %}
+{% block navbar %} {% endblock %}
 {% block body %}
 
-    <div class="container-fluid">
-        <div class="col-md-10 mx-auto">
-            <h3 class="mx-auto text-center mt-4">
-                {{ topic.title }}
-            </h3>
+    <div class="d-flex mb-3 justify-content-end">
+        <div class="btn-save bg-light-purple text-white text-center pt-3">
+            <a class="text-white" href="{{path('questionnaire_show', {'slug': topic.questionnaire.slug}) }}">Sauvegarder</a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-2">
+        <h3 class="mx-auto text-center medium-blue text-center font-weight-bold mt-4">Questionnaire de bilan managérial</h3>
+        <h4 class="mx-auto text-center">{{ topic.title }}</h4>
+
+        <div class="col-md-10 mx-md-auto mt-md-5 col-xs-12 mt-xs-1 p-xs-0">
             <hr class="mt-3 mb-5">
             
             {{ form_start(form) }}
 
-            <div class="d-flex row justify-content-center align-items-center">
+            <div class="">
                 {% set i = 0 %}
                 {% for statement in statements %}
-                    <div class="col-md-10 ml-0 p-1 mb-3 statement">
-                        <p>{{ statement.content }}</p>
-                    </div>
 
-                    <div class="col-md-2 mb-3 statement_rate">
-                        {% if attribute(form, 'record' ~ i ) is defined and attribute(form, 'record' ~ i ) is not null %}
-                            {{ form_widget(attribute(form, 'record' ~ i )) }}
-                        {% endif %}
-                    </div> 
+                    <div class="d-md-flex statementContainer">
+                        <div class="d-flex col-md-10 mb-md-3 align-self-center statement2">
+                            <p class="p-3 mb-0">{{ statement.content }}</p>
+                        </div>                  
                     
+                        <div class="d-flex recordContainer" >
+                            <div class="d-flex col-xs col-md-1 mb-md-3 statement_rate align-items-center">
+                                <span class="d-md-none col-xs mr-3">0</span>
+                                {% if attribute(form, 'record' ~ i ) is defined and attribute(form, 'record' ~ i ) is not null %}
+                                    {{ form_widget(attribute(form, 'record' ~ i )) }}
+                                {% endif %}
+                                <span class="d-md-none col-xs ml-3">6</span>
+                            </div> 
+                        </div>     
+                    </div>   
+
                     {% set i = i + 1 %}
                 {% endfor %}
-            </div>
-
-            <div class="ml-0 text-right mt-4">
-                <div class="ml-0">
-                    <span class="text-muted" id="spanSubmitRecords" style='font-size:0.75rem;'>
-                        Toutes les phrases doivent être annotées et chacune des 4 notes (0,2,4,6) doit-être attribuée au moins une fois.
-                    </span>
-                </div>
-                <button class="btn btn-primary ml-0 disabled" type="submit" id="submitRecords" disabled>
-                    Enregistrer<i class="far fa-paper-plane ml-2"></i>
-                </button>
-            </div>          
-            
-            {{ form_end(form) }}
+            </div>       
         </div>
     </div>
 
+    <div class="d-none d-md-block col-md-9 mt-5 mr-5 ml-auto text-right">
+        <span class="text-muted spanSubmitRecords" id="spanSubmitRecords" style='font-size:0.75rem;'>
+            Toutes les phrases doivent être notées et chacune des 4 notes (0,2,4,6) doit-être attribuée au moins une fois.
+        </span>
+    </div>      
+
+    <div class="d-none d-md-flex mx-5 mb-5 player-footer justify-content-between align-items-center">
+        <div class="col-md-9 progressbar ml-5 p-0">
+            {% if currentTopic == maxTopic %} {% set percent = 100 %} {% else %} {% set percent = 100 /maxTopic * currentTopic %} {% endif %}
+            <div class="d-flex bg-medium-blue" style="width: {{percent}}%!important;"></div>
+            <div class="progressbar-endpoint bg-medium-blue p-0" style="margin-left: {{percent - 0.5}}%!important;" data-toggle="tooltip" data-placement="top" title="Thème {{ currentTopic~' sur  '~maxTopic }}"></div>
+        </div>
+        <button class="btn bg-medium-blue text-white text-center mr-5 font-weight-bold submitRecords" type="submit" id="submitRecords" disabled>
+            SUJET SUIVANT<i class="fas fa-arrow-right ml-2"></i>
+        </button>
+    </div>
+    
+    <div class="d-md-none d-block col-11 mt-5 mx-auto text-justify font_size_500 mb-3 text-justify">
+        <span class="text-muted spanSubmitRecords" id="spanSubmitRecords" style='font-size:0.75rem;'>
+            Toutes les phrases doivent être notées et chacune des 4 notes (0,2,4,6) doit-être attribuée au moins une fois.
+        </span>
+    </div>      
+
+    <div class="d-md-none d-block col-11 mx-auto mb-4"> 
+        <button class="btn bg-medium-blue text-white text-center font-weight-bold w-100 m-0 submitRecords" style="border-radius: 10px!important;" type="submit" id="submitRecords" disabled>
+            SUJET SUIVANT<i class="fas fa-arrow-right ml-2"></i>
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+    
 {% endblock %}
 
 {% block javascripts %}
-    {{parent() }}
+    {{ parent() }}
 
+    <script>
+
+        function mobileInputs(){
+            inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if(input.id != 'form__token' && input.type != 'range'){
+                    if(input.value == ""){ 
+                        input.setAttribute('value', 0);
+                    }
+                    input.type = 'range';
+                }
+            });
+        }
+
+        function laptopInputs(){
+            inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if(input.id != 'form__token' && input.type != 'number'){
+                    input.type = 'number';
+                    if(input.value == 0){
+                        input.classList.add("textInput");
+                        input.classList.remove("text-muted");
+                    }
+                }
+            });
+        }
+
+        if( window.innerWidth < 768 ) {
+            inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if(input.id != 'form__token'){
+                    input.type = 'range';
+                    input.value = '0';
+                }
+            });
+        }
+
+        window.onresize = function() { 
+            if(window.innerWidth < 768){
+                mobileInputs();
+            }else{
+                laptopInputs();
+            }
+       }; 
+
+        window.addEventListener("DOMContentLoaded", (event) => {
+            $( "body" ).removeClass( "pt54" );
+        });
+
+    </script>
     <script>
         const goodAnswers = ["0","2","4","6"];
         inputs = document.querySelectorAll('input');
 
         inputs.forEach(input => {
-            input.addEventListener('input', () => {
+            input.addEventListener('change', () => {
+                submits = document.querySelectorAll(".submitRecords");
+                spans = document.querySelectorAll(".spanSubmitRecords");
                 if (isCorrectlyFill()){
-                    $( "#submitRecords" ).removeAttr('disabled');
-                    $( "#spanSubmitRecords" ).addClass( "d-none");
-                    //console.log('bien rempli');
+                    submits.forEach(submit => {
+                        submit.removeAttribute('disabled');
+                    });
+                    spans.forEach(span => {
+                        span.classList.add( "d-none");
+                    });
                 }else{
-                    $( "#submitRecords" ).attr('disabled', 'true');
-                    $( "#spanSubmitRecords" ).removeClass( "d-none" );
-                    //console.log('pas bien rempli');
+                    submits.forEach(submit => {
+                        submit.setAttribute('disabled', true);
+                    });
+
+                    spans.forEach(span => {
+                        span.classList.remove("d-none");
+                    });
                 }
+                $( "#"+input.id ).removeClass( "text-muted" );
+                $( "#"+input.id ).addClass( "textInput" );
             });
         });
 
         function isCorrectlyFill(){
             var formResults =[];
             inputs.forEach(input => {
-                if(input.type == 'number' && ((goodAnswers.indexOf(input.value) > -1)) ){
-                    formResults.push(input.value);
+                if((input.type == 'number' || input.type == 'range') && goodAnswers.indexOf(input.value) > -1){
+                        formResults.push(input.value);
                 }
             });
 
@@ -79,6 +172,7 @@
                     //console.log('valeur cherchée : ' +  goodAnswers[i]);
 
                     if ( !((formResults.indexOf(goodAnswers[i]) > -1)) ){
+                        $( "#spanSubmitRecords" ).text("Toutes les phrases doivent être notées et chacune des 4 notes (0,2,4,6), la note "+goodAnswers[i]+" doit-être attribuée au moins une fois.");
                         return false;
                         //console.log('valeur pas trouvée');
                         break;
