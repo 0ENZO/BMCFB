@@ -1,77 +1,87 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Connexion{% endblock %}
-
+{% block navbar %} 
+    <div class="d-none d-md-block">{{ parent() }}</div>
+{% endblock %}
 {% block body %}
-<div id="login_content" class="container p-md-5 p-3 full_page_container">
-    <div class="row" style="flex-grow: 1;"> {# flex-grow fix pour IE11 #}
-        <div class="col-lg-5 col-md-8 mx-auto">
 
-            <div class="card mb-0 d-block"> {# d-block fix pour IE11 #}
-                <img src="{{ asset('/img/door.jpg') }}" class="card-img-top" alt="door">
-                <div class="card-body">
+<div id="login_content" class="full_page_container container px-0 p-md-3">
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
 
-                    <form method="post">
-                        {% if error %}
-                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}
-                        </div>
-                        {% endif %}
-
-                        {% if app.user %}
-                        <div class="mb-3">
-                            <div class="container-fluid">
-                                <div class="alert alert-dismissible fade show alert-info mt-3">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    Vous êtes déja connecté avec l'adresse : {{ app.user.username }} | <a
-                                        href="{{ path('app_logout') }}">Se
-                                        déconnecter</a>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <label for="inputEmail" class="sr-only">Email</label>
-                        <input type="email" value="{{ last_username }}" name="email" id="inputEmail"
-                            class="form-control mb-3" placeholder="Email" required autofocus>
-                        <label for="inputPassword" class="sr-only">Password</label>
-                        <input type="password" name="password" id="inputPassword" class="form-control mb-3"
-                            placeholder="Password" required>
-
-                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-                        {#      Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-                                See https://symfony.com/doc/current/security/remember_me.html
-                                security.yaml est prêt
-                        
-                                <div class="checkbox mb-3">
-                                    <label>
-                                        <input type="checkbox" name="_remember_me"> Remember me
-                                    </label>
-                                </div>
-                        #}
-
-                        <div class="text-center">
-                            <button class="btn btn-primary btn_rounded my-2" type="submit">Connexion</button>
-                        </div>
-
-                    </form>
-
-                    <div class="py-4 rounded-0 text-center">
-                        <p class="text-pitch px-3 mb-0 font_size_875">En poursuivant votre navigation, vous acceptez les
-                            <a class href="#" target="_blank">Conditions Générales d'Utilisation</a>.
-                        </p>
-                    </div>
-
-                </div>
+    {% if app.user %}
+    <div class="">
+        <div class="container-fluid">
+            <div class="alert alert-dismissible fade show alert-info mt-3">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                Vous êtes déja connecté avec l'adresse : {{ app.user.username }} | <a href="{{ path('app_logout') }}">Se déconnecter</a>
             </div>
-            <div class="d-flex justify-content-center">
-                <p>Pas de compte ? Inscrivez vous <a href="{{ path('app_register') }}">ici</a></p>
-            </div>
-
         </div>
     </div>
+    {% endif %}
+    
+    <div class="d-md-none d-block">
+        <div class="d-flex col-1 circular-shape bg-transparent-blue align-items-center justify-content-center position-relative">
+            <a class="" href="href="{{ path('home') }}""><i class="fas fa-arrow-left light-purple font_size_1250"></i></a>
+        </div>
+    
+        <div class="col-10 mx-auto authenticationContent">
+            <img class="d-flex text-center mx-auto mb-2" src="{{ asset('/img/welcome.svg')}}" alt="">
+            <h4 class="text-center mb-3">Content de vous revoir</h4>
+    
+            <div class="mt-3 mx-auto">
+                <form method="post">
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control mb-3" placeholder="Email" required autofocus>
+                    <input type="password" name="password" id="inputPassword" class="form-control mb-3" placeholder="Mot de passe" required>
+        
+                    <a class="d-flex justify-content-end text-muted font_size_750">Mot de passe oublié ?</a>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        
+                    <div class="col-12 mt-4 p-0 mx-auto">
+                        <button class="btn bg-medium-purple text-white text-center font-weight-bold w-100" type="submit">Connexion</button>
+                    </div>
+                </form>
+                <div class="col-12 mx-auto p-0 mb-4">
+                    <a href="{{ path('app_register') }}" class="btn bg-transparent-blue ligh-purple text-center font-weight-bold w-100">Inscription</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-none d-md-flex row justify-content-between align-items-center mt-5 py-2" style="flex-grow: 1;"> {# flex-grow fix pour IE11 #}
+        <div class="col-md-6 mt-3" style="position: relative;">
+            <div style="position: absolute;">
+                <h1 class="text-left mb-3">Connectez-vous et évaluez vos façons de faire</h1>
+                <h5 class="text-left mt-5 fw_300">Si vous n'avez pas de compte, vous pouvez vous <a href="{{ path('app_register') }}" style="color: #476ff5!important;">enregistrez ici !</a></h5>
+            </div>
+
+            <img src="{{ asset('/img/enter.svg')}}" alt="">
+        </div>
+
+        <div class="col-md-4 mt-5">
+            <h4 class="text-left mb-4 font-weight-bold">Content de vous revoir !</h1>
+            <form method="post">
+    
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail"
+                    class="form-control mb-3" placeholder="Email" required autofocus style="border: 0; background-color: #e8f0fe;">
+                <input type="password" name="password" id="inputPassword" class="form-control mb-3"
+                    placeholder="Mot de passe" required style="border: 0; background-color: #e8f0fe;">
+    
+                <a class="d-flex justify-content-end text-muted font_size_750">Mot de passe oublié</a>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+    
+                <div class="col-12 mb-4 p-0">
+                    <button class="btn bg-medium-blue mt-4 text-white text-center font-weight-bold w-100" style="border-radius: 10px!important; min-height: 42px;" type="submit">Connexion</button>
+                </div>
+    
+            </form>
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}
