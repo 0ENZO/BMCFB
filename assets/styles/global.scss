@@ -260,7 +260,7 @@ body {
   div > ul{
     flex-direction: row!important;
   }
-  
+
   li > a:hover{
     background: transparent;
     color: #4c5a9e !important; 
@@ -367,5 +367,20 @@ body {
 #login_content, #register_content{
   a:hover{
     text-decoration: none;
+  }
+}
+
+#profileContent{
+  input{
+    border: 0; 
+    background-color: #ffffff;
+    border-radius: 30px;
+    padding-left: 20px;
+  }
+
+  .btn-outline-medium-blue{
+    color: #476ff5!important;
+    border-color: #476ff5!important;
+    border-radius: 30px!important;
   }
 }
