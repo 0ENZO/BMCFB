@@ -1,14 +1,67 @@
-<div class="row no-gutters">
-    {{ include('_alert.html.twig') }}
-    <div class="col-md-8 px-3 py-4 p-md-5 bg-light">
-        <h1>Merci pour vos réponses</h1> 
-        <p>Vous avez terminé ce questionnaire et vos réponses sont bien enregistrées.<br>Que souhaitez-vous faire ?</p>
+{#
+<div class="col-md-11 mx-auto" style="margin-top: 5%;">
 
-        <a href="{{ path('questionnaire_bilan', {'slug': questionnaire.slug }) }}" class="btn btn-primary mt-4 mb-2">Voir vos résultats</a><br>
-        <a href="{{ path('questionnaire_reset', {'slug': questionnaire.slug }) }}" class="btn btn-outline-danger mb-3">Supprimer vos résultats et recommencer</a>
+    {{ include('_alert.html.twig') }}
+    
+    <div class="text-center">
+        <h2 class="my-4">Merci pour vos réponses !</h2>
+        <span class="text-muted">Vous avez terminé ce questionnaire et vos réponses sont bien enregistrées. Que souhaitez-vous faire ?</span>
+
+        <div class="d-flex flex-row justify-content-center mx-auto mt-5">
+            <a href="{{ path('questionnaire_bilan', {'slug': questionnaire.slug }) }}" class="btn bg-light-purple font-weight-bold p-3 text-white">Voir vos résultats</a>
+            <a href="{{ path('questionnaire_reset', {'slug': questionnaire.slug }) }}" class="btn btn-outline-medium-pink font-weight-bold p-3">Supprimer vos résultats et recommencer</a>
+        </div>
+    </div>
+    
+    <div class="d-flex mx-auto justify-content-center">
+        <div class="d-flex flex-row justify-content-center align-items-end" style="bottom: 0px; position: fixed;">
+            <img src="{{ asset('/illustrations/analysis.svg') }}" class="img-fluid" style="max-width: 40%;">
+            <img src="{{ asset('/illustrations/throw_away.svg') }}" class="img-fluid" style="max-width: 35%;">
+        </div>
+    </div>
+</div>
+#}
+
+{#
+<style>
+    div > .background-shape{
+        transform: rotate(270deg);
+    }
+</style>
+
+<div class="d-flex col-md-11 mx-auto" style="margin-top: 5%;">
+    <div class="d-flex col-md-10 mx-auto flex-row align-items-center pt-5" style="position: relative; z-index: 10!important;">
+        {{ include('_alert.html.twig') }}
+
+        <div class="col-md-5 pt-5 text-white">
+            <h2>Evaluez vos façons de faire !</h2>
+            <a href="#" class="btn bg-white ligh-purple text-center font-weight-bold w-100">Commencer</a>
+        </div>
     </div>
 
-    <div class="col-md-4 vh_100_nav d-flex align-items-center sticky-top justify-content-center">
-        <img src="{{ asset('/img/logo_bdf.png') }}" alt="logo_md" class="img-fluid" style="flex-shrink: 0; max-height: 80vh;">
+    <div class="">
+        <img src="{{ asset('/shapes/shape.svg')}}" alt="" class="background-shape" style="max-width: 60%; position: absolute; right: -300px; top: -200px;">
+        <img src="{{ asset('/illustrations/order_confirmed.svg') }}" alt="" style="max-width: 40%; position: absolute; right: -200px;">
+    </div>
+</div>
+#}
+
+{{ include('_alert.html.twig') }}
+<div class="d-flex col-md-11 justify-content-between mx-auto" style="margin-top: 5%;">
+    <div class="col-md-6 pt-5 medium-gray content_div">
+        <h2 class="mb-4">Merci pour vos réponses !</h2>
+        <span class="text-muted">Vous avez terminé ce questionnaire et vos réponses sont bien enregistrées. Que souhaitez-vous faire ?</span>
+        <div class="d-flex flex-row justify-content-start mx-auto mt-5">
+            <a href="{{ path('questionnaire_bilan', {'slug': questionnaire.slug }) }}" class="btn bg-light-purple font-weight-bold pt-2 px-4 text-white ml-0">Voir vos résultats</a>
+            <a href="{{ path('questionnaire_reset', {'slug': questionnaire.slug }) }}" class="btn btn-outline-medium-pink font-weight-bold py-2 px-4">Supprimer vos résultats et recommencer</a>
+        </div>
+        {# <img src="{{ asset('/shapes/triangle.svg') }}" alt="" style="position: relative; margin-top: 30%; left: -20%; max-width: 10%;"> #}
+    </div>
+
+    <div class="col-md-5 p-0 m-0 illustration_div">
+        {# <img src="{{ asset('/shapes/circle.svg') }}" alt="" style="position: relative; max-width: 10%; margin-top:-90%; right:-90%;"> #}
+        <img src="{{ asset('/shapes/medium_shape_transparent_blue.svg') }}" alt="" class="medium_shape">
+        <img src="{{ asset('/illustrations/confirmed.svg') }}" alt="" style="position: relative; max-width:50%; left: 20%; margin-top: 20%;">
+        {# <img src="{{ asset('/shapes/dots.svg') }}" alt="" style="position: relative; max-width: 20%; right: -20%; margin-top: 80%;"> #}
     </div>
 </div>

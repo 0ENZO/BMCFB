@@ -8,9 +8,9 @@
 
 {% block body %}
 
-    <div class="container-fluid">
-        {{ include('_alert.html.twig') }}
+    <div class="container-fluid mt-5">
         <div class="col-md-10 mx-auto">
+            {{ include('_alert.html.twig') }}
 
             <div class="chart-container mb-5" style="position: relative; height:60vh; width:80vw">
                 <canvas class="" id="profilesChart"></canvas>
@@ -29,7 +29,7 @@
                 </div>
             
                 <div class="col-md-5 text-right mt-3">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" disabled> Envoi par mail </button>
+                    <button type="button" class="btn bg-light-purple font-weight-bold text-white" data-toggle="modal" data-target="#exampleModalCenter" disabled> Envoi par mail </button>
                     
                     <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -47,13 +47,13 @@
                                     </p>
                                 </div>
                                 <div class="modal-footer">
-                                    <a href="" class="btn btn-primary" role="button">Envoyer</a>
-                                    <a href="{{ path('user_profile') }}" class="btn btn-primary" role="button">Modifier son email</a>
+                                    <a href="" class="btn bg-light-purple font-weight-bold text-white" role="button">Envoyer</a>
+                                    <a href="{{ path('user_profile') }}" class="btn bg-light-purple font-weight-bold text-white" role="button">Modifier son email</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <a href="javascript:window.print();" class="btn btn-primary">Imprimer cette page</a>
+                    <a href="javascript:window.print();" class="btn bg-light-purple font-weight-bold text-white">Imprimer cette page</a>
                 </div>
             </div>
         </div>
@@ -63,10 +63,32 @@
 
 {% block javascripts %} 
     {{ parent() }}
+
+    <script>
+        $(window).scroll(function(e) {
+            var scroll = $(window).scrollTop();
+            if (scroll >= 150) {
+                $('.navbar').addClass("navbar-hide");
+            } else {
+                $('.navbar').removeClass("navbar-hide");
+            }
+        });
+
+        window.onscroll = function() {
+            if (window.pageYOffset >= 100) {
+                document.getElementsByClassName('.navar').classList.add("navbar-hide");
+            } else {
+                document.getElementsByClassName('.navar').classList.remove("navbar-hide");
+            }
+        };
+
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/0.5.7/chartjs-plugin-annotation.min.js" integrity="sha512-9hzM/Gfa9KP1hSBlq3/zyNF/dfbcjAYwUTBWYX+xi8fzfAPHL3ILwS1ci0CTVeuXTGkRAWgRMZZwtSNV7P+nfw==" crossorigin="anonymous"></script>
 
     <script name="profilesChart">
+        Chart.defaults.global.defaultFontFamily = 'Montserrat';
+        Chart.defaults.global.defaultFontColor = '#282a2d';
         var ctx = document.getElementById('profilesChart');
         var myChart = new Chart(ctx, {
             type: 'horizontalBar',
@@ -86,6 +108,7 @@
                     display: true,
                     text: 'Résultats Styles de Management',
                     fontSize: 35,
+                    padding: 20,
                 },
                 scales: {
                     xAxes: [{
@@ -142,6 +165,7 @@
                 datasets: [{
                     label: "Population (millions)",
                     backgroundColor: ["rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235"],
+                    //backgroundColor: ["#476ff5", "#4c5a9e", "#6d62fb", "#282a2d"],
                     data: {{ axisRates|raw }},
                     }]
             },

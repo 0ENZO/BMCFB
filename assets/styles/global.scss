@@ -137,6 +137,7 @@ body {
 
 .bg-transparent-blue{
   background-color: #476ff533;
+  // d3dcfa
 }
 .bg-light-purple{
   background-color: #4c5a9e;
@@ -377,10 +378,41 @@ body {
     border-radius: 30px;
     padding-left: 20px;
   }
+}
 
-  .btn-outline-medium-blue{
-    color: #476ff5!important;
-    border-color: #476ff5!important;
-    border-radius: 30px!important;
+.btn-outline-medium-blue{
+  color: #476ff5!important;
+  border-color: #476ff5!important;
+  border-radius: 30px!important;
+}
+
+.btn-outline-medium-pink{
+  color: #f08aa4!important;
+  border-color: #f08aa4!important;
+  border-radius: 30px!important;
+}
+
+
+.navbar {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.navbar-hide {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.content_div{
+  z-index: 15;
+}
+
+.illustration_div{
+  position: relative;
+
+  .medium_shape{
+    position: absolute; 
+    width: 150%; 
+    left: -40%;
   }
 }
