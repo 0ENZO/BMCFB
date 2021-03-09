@@ -74,6 +74,13 @@ class QuestionnaireController extends AbstractController
         $currentTopic = array_search($topic, $topics) + 1;
 
 
+        if ($this->isAnswered($topic)){
+            $next = $this->nextTopic($questionnaire);
+            return $this->redirectToRoute('questionnaire_play', [
+                'id' => $next->getId(),
+            ]);
+        }
+        
         $formBuilder = $this->createFormBuilder($statements);
         foreach($statements as $key => $val){
             $formBuilder->add('record'.$key, IntegerType::class, [
@@ -148,6 +155,17 @@ class QuestionnaireController extends AbstractController
         }
 
         return $next;
+    }
+
+    private function isAnswered($topic){
+        $users = [];
+        array_push($users, $this->getUser());
+        $records = $this->getDoctrine()->getRepository(Record::class)->findByTopicAndUsers($topic, $users);
+        if($records){
+            return true;
+        }else{
+            return false; 
+        }
     }
 
     /**
