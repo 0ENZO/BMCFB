@@ -1,0 +1,46 @@
+# Read the documentation: https://symfony.com/doc/current/bundles/FOSCKEditorBundle/index.html
+
+twig:
+    form_themes:
+        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
+
+
+fos_ck_editor:
+    configs:
+        my_config:
+            extraPlugins: ['justify', 'font']
+            removePlugins: 'elementspath'
+            toolbar: [ ["Bold", "Italic", "-", "NumberedList", "BulletedList", "-", "JustifyLeft", 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'Link', 'Unlink'], "-", ["Format", 'TextColor', 'BGColor', "Maximize"], "/", ["Font", 'FontSize', 'Image', '-', "Source"] ]
+
+
+    #base_path: "build/ckeditor"
+    #js_path:   "build/ckeditor/ckeditor.js"
+
+    #plugins:
+    #    font:
+    #        path: 'build/ckeditor/plugins/font/'
+    #        filename: 'plugin.js'
+    #    justify:
+    #        path: 'build/ckeditor/plugins/justify/'
+    #        filename: 'plugin.js'
+
+    #default_config: user_config
+    #configs:
+    #    user_config:
+    #        toolbar: [ ["Bold", "Italic", "Underline", "JustifyLeft", "-", "NumberedList", "BulletedList", "FontSize", "Format"] ]
+    #        removePlugins: 'elementspath'
+    #        # uiColor: "#66AB16"
+    #        extraPlugins: ['justify', 'font']
+    #   
+    #   admin_config:
+    #        extraPlugins: ['justify', 'font']
+    #        removePlugins: 'elementspath'
+    #        toolbar: [ ["Bold", "Italic", "-", "NumberedList", "BulletedList", "-", "JustifyLeft", 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'Link', 'Unlink'], "-", ["Format", 'TextColor', 'BGColor', "Maximize"], "/", ["Font", 'FontSize', 'Image', '-', "Source"] ]
+
+    #    raw_config:
+    #        extraPlugins: ['justify', 'font']
+    #        removePlugins: 'elementspath'
+    #        toolbar: [ ["Bold", "Italic", "-", "NumberedList", "BulletedList", "-", "JustifyLeft", 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'Link', 'Unlink'], "-", ["Format", 'TextColor', 'BGColor', "Maximize"], "/", ["Font", 'FontSize', 'Image', '-', "Source"] ]
+    #        enterMode: CKEDITOR.ENTER_BR
+    #        allowedContent: true
+            
