@@ -12,7 +12,7 @@ class StatementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('content')
+            ->add('title')
             ->add('topic')
             ->add('profile')
         ;

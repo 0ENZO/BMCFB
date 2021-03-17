@@ -22,7 +22,7 @@ class Statement
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $content;
+    private $title;
 
     /**
      * @ORM\ManyToOne(targetEntity=Topic::class, inversedBy="statements")
@@ -51,14 +51,14 @@ class Statement
         return $this->id;
     }
 
-    public function getContent(): ?string
+    public function getTitle(): ?string
     {
-        return $this->content;
+        return $this->title;
     }
 
-    public function setContent(string $content): self
+    public function setTitle(string $title): self
     {
-        $this->content = $content;
+        $this->title = $title;
 
         return $this;
     }
@@ -119,6 +119,6 @@ class Statement
 
     public function __toString()
     {
-        return $this->content;
+        return $this->title;
     }
 }

@@ -260,7 +260,7 @@
                                 {% for statement in statements %}
                                     <tr>                                                            
                                         <td>{{ statement.id }}</td>  
-                                        <td>{{ statement.content|length > '45'? statement.content|slice(0, 45)~'..': statement.content }}</td>                               
+                                        <td>{{ statement.title|length > '45'? statement.title|slice(0, 45)~'..': statement.title }}</td>                               
                                         <td>{{ statement.topic.title }}</td>  
                                         <td>{{ statement.profile.title }}</td>  
                                         <td>                                                                                           
@@ -284,9 +284,9 @@
                                     <div class="modal-body bg-body">
                                         {{ form_start(form_statement) }}
         
-                                            {% if form_statement.content is defined %}
+                                            {% if form_statement.title is defined %}
                                                 <div class="mb-4">
-                                                    {{ form_widget(form_statement.content, { 'attr': { 'placeholder': 'Titre' } }) }}
+                                                    {{ form_widget(form_statement.title, { 'attr': { 'placeholder': 'Titre' } }) }}
                                                 </div>
                                             {% endif %}
         

@@ -80,19 +80,19 @@ easy_admin:
             list:
                 fields:
                     - 'id'
-                    - 'content'
+                    - 'title'
                     - 'topic'
                     - 'records'
                     - 'profile'
             show: 
                 fields:
-                    - 'content'
+                    - 'title'
                     - 'topic'
                     - 'records'
                     - 'profile'
             form:
                 fields:
-                    - { property: 'content', type: 'fos_ckeditor'}
+                    - 'title'
                     - 'topic'
                     - 'profile'
         Enregistrements: 
