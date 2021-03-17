@@ -2,15 +2,21 @@
 
 namespace App\Controller;
 
+use Exception;
+use App\Entity\User;
 use App\Security\LoginFormAuthenticator;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -19,9 +25,9 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+        if ($this->getUser()) {
+            return $this->redirectToRoute('home');
+        }
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -77,4 +83,113 @@ class SecurityController extends AbstractController
         return $this->render('security/password_change.html.twig');
     }
 
+     /**
+     * Demande d'envoi de mail pour remise à zéro du mot de passe
+     * @Route("/password_request", name="app_password_request")
+     */
+    public function password_request(Request $request, UserPasswordEncoderInterface $encoder, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator): Response
+    {
+
+        if ($request->isMethod('POST')) {
+
+            $em = $this->getDoctrine()->getManager();
+            $email = $request->request->get('email');
+            $user = $em->getRepository(User::class)->findOneByEmail($email);
+
+            if ($user === null) {
+                $this->addFlash('warning', 'Email inconnu');
+                return $this->redirectToRoute($request->get('_route'));
+            }
+
+            $token = $tokenGenerator->generateToken();
+
+            try {
+                $user->setResetToken($token);
+                $em->flush();
+            } catch (\Exception $e) {
+                $this->addFlash('warning', $e->getMessage());
+                return $this->redirectToRoute('home');
+            }
+
+            $url = $this->generateUrl('app_password_reset', array('token' => $token), UrlGeneratorInterface::ABSOLUTE_URL);
+
+            /* $message = (new \Swift_Message('Learn | Demande de modification du mot de passe'))
+                ->setFrom('ampli@dsides.net')
+                ->setTo($user->getEmail())
+                ->setBcc('ampli@dsides.net')
+                // ->setBody($this->renderView('email/moderation.html.twig', ['idea' => $idea]), 'text/html')
+                ->setBody(
+                    "Rendez-vous à <a href ='" . $url . "'>cette adresse</a> pour modifier votre mot de passe" . $url,
+                    'text/html'
+                );
+            $mailer->send($message); */
+
+            $email = (new TemplatedEmail())
+                ->from('equipe@makelearn.fr')
+                ->to($user->getEmail())
+                ->bcc('equipe@makelearn.fr')
+                ->replyTo('equipe@makelearn.fr')
+                ->subject('BMCFB | Demande de modification du mot de passe')
+                // ->text('Sending emails is fun again!')
+                // ->html('<p>See Twig integration for better HTML integration!</p>')
+                // path of the Twig template to render
+                ->htmlTemplate('email/password_request.html.twig')
+                // pass variables (name => value) to the template
+                ->context([
+                    'url' => $url,
+                ])
+            ;
+
+            $mailer->send($email);
+
+
+            // forcer la déconnexion ici, au cas où ?
+
+            // Attention, pas de prise en charge des alertes sur la home de Learn
+            // $this->addFlash('info', "Email envoyé. Veuillez vérifier votre boîte de réception.");
+            // return $this->redirectToRoute('home');
+            return $this->render('security/password_requested.html.twig');
+
+        }
+
+        return $this->render('security/password_request.html.twig');
+
+    }
+
+    /**
+     * Remise à zéro du mot de passe
+     * @Route("/password_reset/{token}", name="app_password_reset")
+     */
+    public function password_reset(Request $request, string $token, UserPasswordEncoderInterface $passwordEncoder)
+    {
+
+        if ($request->isMethod('POST')) {
+
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository(User::class)->findOneByResetToken($token);
+            $password = $request->request->get('password');
+            $passwordConfirm = $request->request->get('passwordConfirm');
+
+            if ($user === null) {
+                $this->addFlash('warning', "La modification du mot de passe a échoué : Token inconnu");
+                return $this->redirectToRoute('home');
+            }
+
+            if ($password != $passwordConfirm) {
+                $this->addFlash('warning', 'Les mots de passe ne correspondent pas');
+                return $this->redirectToRoute($request->get('_route'), ['token' => $token]);
+            }
+
+            $user->setResetToken(null);
+            $user->setPassword($passwordEncoder->encodePassword($user, $password));
+            $em->flush();
+
+            $this->addFlash('info', "Le mot de passe a été modifié, vous pouvez vous connecter");
+            return $this->redirectToRoute('app_login');
+
+        } 
+        
+        return $this->render('security/password_reset.html.twig', ['token' => $token]);
+
+    }
 }

@@ -63,6 +63,12 @@ class User implements UserInterface
      */
     private $questionnaires;
 
+    /**
+     * @var string le token qui servira lors de l'oubli de mot de passe
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $resetToken;
+
     public function __construct()
     {
         $this->tracks = new ArrayCollection();
@@ -265,5 +271,17 @@ class User implements UserInterface
     public function __toString()
     {
         return $this->email;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
     }
 }
