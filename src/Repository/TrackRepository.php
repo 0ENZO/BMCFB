@@ -47,4 +47,17 @@ class TrackRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+    * @return Track[] 
+    */
+    public function findExistingTrack($user, $action)
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.user = :user')->setParameter('user', $user)
+            ->andWhere('t.action = :action')->setParameter('action', $action)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

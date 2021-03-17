@@ -2,22 +2,23 @@
 
 namespace App\Controller;
 
-use App\Entity\Profile;
-use App\Entity\Topic;
-use App\Entity\Record;
-use App\Entity\Statement;
-use App\Entity\Questionnaire;
-use App\Entity\User;
-use App\Repository\RecordRepository;
 use Exception;
+use App\Entity\User;
+use App\Entity\Topic;
+use App\Entity\Track;
+use App\Entity\Record;
+use App\Entity\Profile;
+use App\Entity\Statement;
+use App\Service\UserResult;
+use App\Entity\Questionnaire;
+use App\Repository\RecordRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Validator\Constraints\Length;
-use App\Service\UserResult;
 
 /**
  * @Route("/questionnaire")
@@ -113,6 +114,13 @@ class QuestionnaireController extends AbstractController
             $next = $this->nextTopic($questionnaire);
 
             if ($next == null){
+
+                $action = 'Questionnaire '.$questionnaire->getId().' finished';
+                $existingTrack = $this->getDoctrine()->getRepository(Track::class)->findExistingTrack($user, $action);
+                if (!$existingTrack){
+                    $addTrack = $this->addTrack($action, $user);
+                }
+
                 return $this->render('questionnaire/index.html.twig', [
                     'finished' => true,
                     'questionnaire' => $questionnaire
@@ -309,5 +317,16 @@ class QuestionnaireController extends AbstractController
         array_push($finalUserProfiles, $this->getDoctrine()->getRepository(Profile::class)->findOneById($key));
 
         return $finalUserProfiles;
+    }
+    
+    private function addTrack($action, $user)
+    {
+        $track = new Track();
+        $track->setDate(new \DateTime());
+        $track->setAction($action);
+        $track->setUser($user);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($track);
+        $em->flush();
     }
 }

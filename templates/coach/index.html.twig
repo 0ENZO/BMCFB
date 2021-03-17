@@ -7,21 +7,23 @@
         {{ include('_alert.html.twig') }}
         <div class="col-md-10 mx-auto my-5">
             <div class="d-flex row justify-content-between">
-                <h2>LES QUESTIONNAIRES DISPONIBLES :</h2>
+                <h2 class="medium-gray">LES QUESTIONNAIRES DISPONIBLES :</h2>
                 <a href="" class="btn bg-light-purple text-white font-weight-bold ">En ajouter un </a>
             </div>
             <hr>
 
-            <div class="fixed-btn px-3">
-                <a href="/admin/easyadmin"><i class="fas fa-cogs" aria-hidden="true"></i></a>
-            </div>
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="fixed-btn px-3">
+                    <a class="medium-blue" href="/admin/easyadmin"><i class="fas fa-cogs" aria-hidden="true"></i></a>
+                </div>
+            {% endif %}
 
             {% if questionnaires is defined and questionnaires is not null %}
                 <div class="d-flex align-items-stretch mb-5 pt-5">
                     {% for questionnaire in questionnaires %}
 
                     <div class="card mr-4">
-                        <a href="" class="text-right" style="position: absolute; top:10px; z-index: 100; right:5px;"><i class="fas fa-cog"></i></a>
+                        <a href="{{ path('questionnaire_edit', {'id': questionnaire.id}) }}" class="text-right medium-blue" style="position: absolute; top:10px; z-index: 100; right:5px;"><i class="fas fa-cog"></i></a>
                         <img class="card-img-top" src="https://picsum.photos/300/100" alt="Card image cap" style="position: relative;">
                         <div class="card-body">
                             <h5 class="card-title">{{ questionnaire.name }}</h5>
@@ -29,8 +31,8 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-between">
-                                <small class=""><a href="{{ path('questionnaire_show', {'slug': questionnaire.slug}) }}">Voir le questionnaire</a></small>
-                                <small class=""><a href="{{ path('coach_results', {'id': questionnaire.id}) }}">Voir les résultats</a></small>
+                                <small class=""><a class="medium-blue" href="{{ path('questionnaire_show', {'slug': questionnaire.slug}) }}">Voir le questionnaire</a></small>
+                                <small class=""><a class="medium-blue" href="{{ path('coach_results', {'id': questionnaire.id}) }}">Voir les résultats</a></small>
                             </div>
                         </div>
                     </div>

@@ -8,11 +8,18 @@ use App\Entity\Record;
 use App\Entity\Profile;
 use App\Entity\Statement;
 use App\Entity\Questionnaire;
+use App\Entity\Track;
+use App\Form\ProfileType;
+use App\Form\QuestionnaireType;
+use App\Form\StatementType;
+use App\Form\TopicType;
 use App\Service\UserResult;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/coach")
@@ -31,6 +38,156 @@ class CoachController extends AbstractController
             'questionnaires' => $questionnaires
         ]);
     }
+
+    /**
+     * @Route("/{id}/edit", name="questionnaire_edit", requirements={"questionnaire"="\d+"})
+     */
+    public function questionnaire_edit(Questionnaire $questionnaire, Request $request, EntityManagerInterface $em)
+    {
+        $profiles = $em->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
+        $topics = $em->getRepository(Topic::class)->findByQuestionnaire($questionnaire);
+        $statements = $em->getRepository(Statement::class)->findQuestionnaireStatements($questionnaire);
+
+        $profile = new Profile();
+        $profile->setQuestionnaire($questionnaire);
+        $form_profile = $this->createForm(ProfileType::class, $profile);
+        $form_profile->remove('questionnaire');
+
+        if ($form_profile->isSubmitted() && $form_profile->isValid()) {
+            $em->persist($profile);
+            $em->flush();
+            $this->addFlash('info', "Profil ajouté");
+            return $this->redirectToRoute('questionnaire_edit', [
+                'id' => $questionnaire->getId(),
+            ]);
+        }
+
+        $topic = new Topic();
+        $topic->setQuestionnaire($questionnaire);
+        $form_topic = $this->createForm(TopicType::class, $topic);
+        $form_topic->remove('questionnaire');
+
+        if ($form_topic->isSubmitted() && $form_topic->isValid()) {
+            $em->persist($topic);
+            $em->flush();
+            $this->addFlash('info', "Sujet ajouté");
+            return $this->redirectToRoute('questionnaire_edit', [
+                'id' => $questionnaire->getId(),
+            ]);
+        }
+
+        $statement = new Statement();
+        $form_statement = $this->createForm(StatementType::class, $statement);
+
+        if ($form_statement->isSubmitted() && $form_statement->isValid()) {
+            $em->persist($statement);
+            $em->flush();
+            $this->addFlash('info', "Affirmation ajoutée");
+            return $this->redirectToRoute('questionnaire_edit', [
+                'id' => $questionnaire->getId(),
+            ]);
+        }
+
+        $form = $this->createForm(QuestionnaireType::class, $questionnaire);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()){
+
+            $em->flush();
+            $this->addFlash('info', "Questionnaire modifié");
+            return $this->redirectToRoute('questionnaire_edit', [
+                'id' => $questionnaire->getId(),
+            ]);
+        }
+
+        $action = 'Questionnaire '.$questionnaire->getId().' finished';
+        $finishedTracks = $em->getRepository(Track::class)->findByAction($action);
+
+        return $this->render('coach/questionnaire/edit.html.twig', [
+            'questionnaire' => $questionnaire,
+            'form' => $form->createView(),
+            'finishedTracks'=> $finishedTracks,
+            'profiles' => $profiles,
+            'topics' => $topics,
+            'statements' => $statements,
+            'form_profile' => $form_profile->createView(),
+            'form_topic' => $form_topic->createView(),
+            'form_statement' => $form_statement->createView()
+        ]);
+    }
+
+    /**
+     * @Route("unit/edit/{id}/{type}", name="unit_edit")
+     */
+    public function unit_edit(EntityManagerInterface $em, Request $request, $id, $type)
+    {
+
+        if ($type == 'profil'){
+            $profile = $em->getRepository(Profile::class)->findOneById($id);
+            $questionnaire = $profile->getQuestionnaire();
+            $profiles = $em->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
+            $current = array_search($profile, $profiles);
+            $max = count($profiles);
+            $form = $this->createForm(ProfileType::class, $profile);
+            $form->handleRequest($request);
+    
+            if ($form->isSubmitted() && $form->isValid()){
+    
+                $em->flush();
+                $this->addFlash('info', "Sujet modifié");
+                return $this->redirectToRoute('questionnaire_edit', [
+                    'id' => $questionnaire->getId(),
+                ]);
+            }
+        }
+
+        if ($type == 'sujet'){
+            $topic = $em->getRepository(Topic::class)->findOneById($id);
+            $questionnaire = $topic->getQuestionnaire();
+            $topics = $em->getRepository(Topic::class)->findByQuestionnaire($questionnaire);
+            $current = array_search($topic, $topics);
+            $max = count($topics);
+            $form = $this->createForm(TopicType::class, $topic);
+            $form->handleRequest($request);
+    
+            if ($form->isSubmitted() && $form->isValid()){
+    
+                $em->flush();
+                $this->addFlash('info', "Sujet modifié");
+                return $this->redirectToRoute('questionnaire_edit', [
+                    'id' => $questionnaire->getId(),
+                ]);
+            }
+        }
+
+        if ($type == 'affirmation'){
+            $statement = $em->getRepository(Statement::class)->findOneById($id);
+            $questionnaire = $topic->getQuestionnaire();
+            $statements = $em->getRepository(Statement::class)->findQuestionnaireStatements($questionnaire);
+            $current = array_search($statement, $statements);
+            $max = count($statements);
+
+            $form = $this->createForm(StatementType::class, $statement);
+            $form->handleRequest($request);
+    
+            if ($form->isSubmitted() && $form->isValid()){
+    
+                $em->flush();
+                $this->addFlash('info', "Affirmation modifiée");
+                return $this->redirectToRoute('questionnaire_edit', [
+                    'id' => $questionnaire->getId(),
+                ]);
+            }
+        }
+        return $this->render('coach/questionnaire/unit_edit.html.twig', [
+            'form' => $form->createView(),
+            'questionnaire' => $questionnaire,
+            'type' => $type,
+            'current' => $current+1,
+            'max' => $max+1,
+        ]);
+    }
+
 
     /**
      * @Route("/{id}/results", name="coach_results", requirements={"questionnaire"="\d+"})

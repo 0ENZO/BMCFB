@@ -1,0 +1,352 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Modifier un questionnaire {% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        {% if is_granted('ROLE_COACH') %} 
+            <div class="container px-4 my-5" style="margin-top: 6%!important;">
+                {{ include('_alert.html.twig') }}
+                <ul class="nav nav-pills" id="questionnaireTab" role="tablist">
+                    <li class="nav-item font-weight-bold">
+                    <a class="nav-link active" id="pills-questionnaire-tab" data-toggle="pill" href="#pills-questionnaire" role="tab" aria-controls="pills-questionnaire" aria-selected="true">Questionnaire</a>
+                    </li>
+                    <li class="nav-item font-weight-bold">
+                    <a class="nav-link" id="pills-profiles-tab" data-toggle="pill" href="#pills-profiles" role="tab" aria-controls="pills-profiles" aria-selected="false">Profils</a>
+                    </li>
+                    <li class="nav-item font-weight-bold">
+                    <a class="nav-link" id="pills-topics-tab" data-toggle="pill" href="#pills-topics" role="tab" aria-controls="pills-topics" aria-selected="false">Sujets</a>
+                    </li>
+                    <li class="nav-item font-weight-bold">
+                    <a class="nav-link" id="pills-statements-tab" data-toggle="pill" href="#pills-statements" role="tab" aria-controls="pills-statements" aria-selected="false">Affirmations</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="questionnaireTabContent">
+                    <div class="tab-pane show fade active" id="pills-questionnaire" role="tabpanel" aria-labelledby="pills-questionnaire-tab">
+                        <div class="d-flex justify-content-between px-2">
+                            <div class="col-md-8 mt-5">
+                                {{ form_start(form) }}
+
+                                    {% if form.name %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 mb-1">
+                                                <strong>Titre du questionnaire</strong>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.name, { 'attr': {'class': 'fw_600'} }) }}</div>
+                                        </div>
+                                    {% endif %}
+                                                    
+                                    {% if form.slug is defined %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 mb-1">
+                                                <strong>Code session</strong>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.slug, { 'attr': {'class': 'fw_600'} }) }}</div>
+                                        </div>
+                                    {% endif %}
+                        
+                                    {% if form.summary is defined %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 mb-1">
+                                                <strong>Description</strong>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.summary, { 'attr': {'class': 'fw_600'} }) }}</div>
+                                        </div>
+                                    {% endif %}
+                        
+                                    {% if form.leader is defined %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <strong>Animateur</strong><br>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.leader) }}</div>
+                                        </div>
+                                    {% endif %}
+                    
+                                    {% if form.isOpen is defined %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <strong>Ouvert</strong><br>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.isOpen) }}</div>
+                                        </div>
+                                    {% endif %}
+                                                                
+                                    {% if form.logoFile is defined %}
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <strong>Logo</strong><br>
+                                            </div>
+                                            <div class="col-md-8">{{ form_widget(form.logoFile) }}</div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <input type="submit" value="Enregistrer les modifications" class="btn bg-medium-blue my-5 font-weight-bold text-white mx-0"/>
+                                {{ form_end(form) }}
+                    
+                            </div>
+                            <div class="col-md-3 mt-5">
+                                <h4>Fil d'actualités</h4>
+                                <div class="col" style="overflow-y: scroll; max-height: 355px;">
+                                    <ul class="timeline">
+                                        {% if finishedTracks is defined and finishedTracks|length > 1 %}
+                                            {% for track in finishedTracks|slice(0, 10) %}
+                                                    <li>
+                                                        {% if track.user.firstName is defined and track.user.firstName is not null and track.user.lastName is defined and track.user.lastName is not null %}
+                                                            {{ track.user.firstName ~'.'~ track.user.lastName }} a finit le questionnaire</a>
+                                                        {% else %}
+                                                            {{track.user.email}} a finit le questionnaire</a>
+                                                        {% endif %}
+                                                        <p><small class="text-muted "><i class="far fa-clock mr-1"></i>{{ track.date|date("d/m/Y") }}</small></p>
+                                                    </li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <li>
+                                                <p><small>Aucun répondant n'a encore terminé le questionnaire.</small></p>
+                                            </li>
+                                        {% endif %}
+                                    </ul>           
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade mt-5 px-2" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab">
+                        <table class="table">
+                            <thead>
+                                <tr>                                                                            
+                                    <th>Titre</th>              
+                                    <th>Contenu</th>
+                                    <th>Affirmations</th>
+                                </tr>
+                            </thead>
+                    
+                            <div class="fixed-btn px-3">
+                                <a class="medium-blue" href="" id="button_add_profile" data-toggle="modal" data-target="#modal_profile" ><i class="fas fa-plus" aria-hidden="true"></i></a>
+                            </div>
+                        
+                            <tbody>
+                                {% for profile in profiles %}
+                                    <tr>                                                            
+                                        <td>{{ profile.title }}</td>
+                                        <td>{{ profile.content|length > '45'? profile.content|slice(0, 45)~'..': profile.content }}</td>                               
+                                        <td class="text-center"><span class="badge badge-secondary">{{ profile.statements|length }}</span></td>
+                                        <td>                                                                                           
+                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{# {{ path('category_edit', { 'id': category.id}) }} #}"><i class="fas fa-pen"></i></a>
+                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody >
+                        </table>
+        
+                        <div class="modal fade" id="modal_profile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header d-flex align-items-center bg-medium-blue text-white">
+                                        <h4 class="font_size_1250 modal-title mb-0" id="myModalLabel">Ajouter un profil</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body bg-body">
+                                        {{ form_start(form_profile) }}
+        
+                                            {% if form_profile.title is defined %}
+                                                <div class="mb-4">
+                                                    <label>Titre</label>
+                                                    {{ form_widget(form_profile.title) }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if form_profile.content is defined %}
+                                                <div class="mb-4">
+                                                    <label>Description</label>
+                                                    {{ form_widget(form_profile.content) }}
+                                                </div>
+                                            {% endif %}
+        
+                                            {% if form_profile.statements is defined %}
+                                                <div class="mb-4">
+                                                    <label>Affirmations</label>
+                                                    {{ form_widget(form_profile.statements) }}
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="text-center">
+                                                <input type="submit" value="Ajouter" class="btn bg-medium-blue font-weight-bold text-white my-3" />
+                                            </div>
+                                        {{ form_end(form_profile) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade mt-5 px-2" id="pills-topics" role="tabpanel" aria-labelledby="pills-topics-tab">
+                        <table class="table">
+                            <thead>
+                                <tr>                                                                            
+                                    <th>Titre</th>              
+                                    <th>Affirmations</th>
+                                </tr>
+                            </thead>
+                    
+                            <div class="fixed-btn px-3">
+                                <a class="medium-blue" href="" id="button_add_topic" data-toggle="modal" data-target="#modal_topic" ><i class="fas fa-plus" aria-hidden="true"></i></a>
+                            </div>
+                        
+                            <tbody >
+                                {% for topic in topics %}
+                                    <tr>                                                            
+                                        <td>{{ topic.title }}</td>                         
+                                        <td class="text-center"><span class="badge badge-secondary">{{ topic.statements|length }}</span></td>
+                                        <td>                                                                                           
+                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{{ path('unit_edit', { 'id': topic.id, 'type': 'sujet'}) }}"><i class="fas fa-pen"></i></a>
+                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody >
+                        </table>
+
+                        <div class="modal fade" id="modal_topic" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header d-flex align-items-center bg-medium-blue text-white">
+                                        <h4 class="font_size_1250 modal-title mb-0" id="myModalLabel">Ajouter un sujet</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body bg-body">
+                                        {{ form_start(form_topic) }}
+        
+                                            {% if form_topic.title is defined %}
+                                                <div class="my-3">
+                                                    {{ form_widget(form_topic.title, { 'attr': { 'placeholder': 'Titre' } }) }}
+                                                </div>
+                                            {% endif %}
+        
+                                            {% if form_topic.statements is defined %}
+                                                <div class="mb-4">
+                                                    <label>Affirmations</label>
+                                                    {{ form_widget(form_topic.statements) }}
+                                                </div>
+                                            {% endif %}
+        
+                                            <div class="text-center">
+                                                <input type="submit" value="Ajouter" class="btn bg-medium-blue font-weight-bold text-white my-3" />
+                                            </div>        
+                                        {{ form_end(form_topic) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade mt-5 px-2" id="pills-statements" role="tabpanel" aria-labelledby="pills-statements-tab">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>                                                                            
+                                    <th>Titre</th>              
+                                    <th>Sujet</th>
+                                    <th>Profile</th>
+                                </tr>
+                            </thead>
+
+                            <div class="fixed-btn px-3">
+                                <a class="medium-blue" href="" id="button_add_statement" data-toggle="modal" data-target="#modal_statement" ><i class="fas fa-plus" aria-hidden="true"></i></a>
+                            </div>
+                        
+                            <tbody >
+                                {% for statement in statements %}
+                                    <tr>                                                            
+                                        <td>{{ statement.id }}</td>  
+                                        <td>{{ statement.content|length > '45'? statement.content|slice(0, 45)~'..': statement.content }}</td>                               
+                                        <td>{{ statement.topic.title }}</td>  
+                                        <td>{{ statement.profile.title }}</td>  
+                                        <td>                                                                                           
+                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{# {{ path('category_edit', { 'id': category.id}) }} #}"><i class="fas fa-pen"></i></a>
+                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody >
+                        </table>
+
+                        <div class="modal fade" id="modal_statement" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header d-flex align-items-center bg-medium-blue text-white">
+                                        <h4 class="font_size_1250 modal-title mb-0" id="myModalLabel">Ajouter une affirmation</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body bg-body">
+                                        {{ form_start(form_statement) }}
+        
+                                            {% if form_statement.content is defined %}
+                                                <div class="mb-4">
+                                                    {{ form_widget(form_statement.content, { 'attr': { 'placeholder': 'Titre' } }) }}
+                                                </div>
+                                            {% endif %}
+        
+                                            {% if form_statement.topic is defined %}
+                                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                                    <div class="col-md-2">
+                                                        <span class="font-weight-bold medium-gray">Sujet</span>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        {{ form_widget(form_statement.topic) }}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if form_statement.profile is defined %}
+                                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                                    <div class="col-md-2">
+                                                        <span class="font-weight-bold medium-gray">Profil</span>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        {{ form_widget(form_statement.profile) }}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+        
+                                            <div class="text-center">
+                                                <input type="submit" value="Ajouter" class="btn bg-medium-blue font-weight-bold text-white my-3" />
+                                            </div>
+                                        {{ form_end(form_statement) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        var nav = document.getElementsByClassName('nav nav-pills');
+        nav[0].addEventListener('click', function (event) {
+            console.log('touché');
+            var id = event.target.getAttribute('aria-controls');
+            localStorage.activeNav = id.slice(6);
+        });
+
+        if (localStorage.activeNav) {
+            document.getElementById('pills-'+localStorage.activeNav+'-tab').classList.add("active");
+            document.getElementById('pills-'+localStorage.activeNav).classList.add("active");
+            document.getElementById('pills-'+localStorage.activeNav).classList.add("show");
+            if (localStorage.activeNav !== "questionnaire"){
+                document.getElementById('pills-questionnaire-tab').classList.remove("active");
+                document.getElementById('pills-questionnaire').classList.remove("active");
+                document.getElementById('pills-questionnaire').classList.remove("show");
+            }
+        }
+
+    </script>
+{% endblock %}

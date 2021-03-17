@@ -19,32 +19,16 @@ class StatementRepository extends ServiceEntityRepository
         parent::__construct($registry, Statement::class);
     }
 
-    // /**
-    //  * @return Statement[] Returns an array of Statement objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+    * @return Statement[] 
+    */
+    public function findQuestionnaireStatements($questionnaire)
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
+            ->leftJoin('s.topic', 't')
+            ->andWhere('t.questionnaire = :questionnaire')->setParameter('questionnaire', $questionnaire)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Statement
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

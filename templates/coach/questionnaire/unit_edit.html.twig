@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Editeur de contenu {% endblock %}
+{% block navbar %}
+<div class="d-flex fixed-top" style="background-color: white; border-bottom: 1px solid rgba(40, 42, 45, 0.35);">
+    <div class="px-4 py-3" style="border-right: 1px solid rgba(40, 42, 45, 0.35);">
+        <a class="medium-gray" href="{{ path('questionnaire_edit', {'id': questionnaire.id }) }}"><i class="fas fa-arrow-left font_size_1250"></i></a>
+    </div>
+    <div class="d-flex col justify-content-between align-items-center">
+        <div class="d-flex col-md-2 px-0">
+            <span class="font_logo ml-3 text-dark font-weight-bold">BMCFB</a>
+        </div>
+        <div class="d-flex col justify-content-end">
+                <a class="btn btn-outline-medium-gray font-weight-bold" href="" style="border-radius: 10px!important;">Annuler</a>
+                <a class="btn bg-light-purple font-weight-bold text-white" href="" style="border-radius: 10px!important;">Sauvegarder</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        {% if is_granted('ROLE_COACH') %} 
+            <div class="col-md-9 mx-auto px-4 my-5 position-relative" style="margin-top: 6%!important; z-index: 100;">
+                {{ include('_alert.html.twig') }}
+
+                <div class="mb-5 ">
+                    <h2 class="medium-gray">Editer un contenu</h2>
+                    <span class="text-muted">{{ type|capitalize~' '~current~' sur '~max }}</span>
+                </div>
+                <div class="col-md-11 mx-auto">
+                    {{ form_start(form) }}
+                        {{ form_widget(form) }}
+                        <input type="submit" value="Enregistrer les modifications" class="btn bg-light-purple mt-3 font-weight-bold text-white mx-0"/>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+            <img src="{{ asset('/shapes/medium_shape_transparent_blue.svg') }}" alt="" class="position-absolute" style="width: 60%; top: 15%; left: 35%; z-index: 5;">
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
