@@ -22,7 +22,7 @@
                 <div class="d-flex align-items-stretch mb-5 pt-5">
                     {% for questionnaire in questionnaires %}
 
-                    <div class="card mr-4">
+                    <div class="col-md-4 card mr-4 px-0">
                         <a href="{{ path('questionnaire_edit', {'id': questionnaire.id}) }}" class="text-right medium-blue" style="position: absolute; top:10px; z-index: 100; right:5px;"><i class="fas fa-cog"></i></a>
                         <img class="card-img-top" src="https://picsum.photos/300/100" alt="Card image cap" style="position: relative;">
                         <div class="card-body">

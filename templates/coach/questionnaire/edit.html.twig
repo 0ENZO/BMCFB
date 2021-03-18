@@ -254,7 +254,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Id</th>                                                                            
+                                    <th>N°</th>                                                                            
                                     <th>Titre</th>              
                                     <th>Sujet</th>
                                     <th>Profil</th>
@@ -266,9 +266,10 @@
                             </div>
                         
                             <tbody >
+                                {% set index = 1 %}
                                 {% for statement in statements %}
                                     <tr>                                                            
-                                        <td>{{ statement.id }}</td>  
+                                        <td>{{ index }}</td>  
                                         <td>{{ statement.title|length > '45'? statement.title|slice(0, 45)~'..': statement.title }}</td>                               
                                         <td>{{ statement.topic.title }}</td>  
                                         <td>{{ statement.profile.title }}</td>  
@@ -282,6 +283,7 @@
                                             </a>
                                         </td>
                                     </tr>
+                                    {% set index = index + 1 %}
                                 {% endfor %}
                             </tbody >
                         </table>
