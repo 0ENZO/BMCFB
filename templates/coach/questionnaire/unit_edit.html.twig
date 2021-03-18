@@ -11,7 +11,7 @@
         </div>
         <div class="d-flex col justify-content-end">
                 <a class="btn btn-outline-medium-gray font-weight-bold" href="" style="border-radius: 10px!important;">Annuler</a>
-                <a class="btn bg-light-purple font-weight-bold text-white" href="" style="border-radius: 10px!important;">Sauvegarder</a>
+                <a class="btn bg-light-purple font-weight-bold text-white" id="saveEditorBtn" style="border-radius: 10px!important;">Sauvegarder</a>
         </div>
     </div>
 </div>
@@ -28,8 +28,55 @@
                 </div>
                 <div class="col-md-11 mx-auto">
                     {{ form_start(form) }}
+                        {% if form.title is defined %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="col-md-2 mb-1 px-0">
+                                    <span class="medium-gray font_size_1000 font-weight-bold">Titre</span>
+                                </div>
+                                <div class="col-md-10">{{ form_widget(form.title) }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if form.questionnaire is defined %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="col-md-2 mb-1 px-0">
+                                    <span class="medium-gray font_size_1000 font-weight-bold">Questionnaire</span>
+                                </div>
+                                <div class="col-md-10">{{ form_widget(form.questionnaire) }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if form.topic is defined %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="col-md-2 mb-1 px-0">
+                                    <span class="medium-gray font_size_1000 font-weight-bold">Sujet</span>
+                                </div>
+                                <div class="col-md-10">{{ form_widget(form.topic) }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if form.profile is defined %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="col-md-2 mb-1 px-0">
+                                    <span class="medium-gray font_size_1000 font-weight-bold">Profil</span>
+                                </div>
+                                <div class="col-md-10">{{ form_widget(form.profile) }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if form.content is defined %}
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="col-md-2 mb-1 px-0">
+                                    <span class="medium-gray font_size_1000 font-weight-bold">Description</span>
+                                </div>
+                                <div class="col-md-10">{{ form_widget(form.content) }}</div>
+                            </div>
+                        {% endif %}
+
                         {{ form_widget(form) }}
-                        <input type="submit" value="Enregistrer les modifications" class="btn bg-light-purple mt-3 font-weight-bold text-white mx-0"/>
+
+                        <input type="submit" id="submitEditorBtn" value="Sauvegarder" class="btn bg-light-purple mt-3 font-weight-bold text-white mx-0" hidden/>
+
                     {{ form_end(form) }}
                 </div>
             </div>
@@ -40,4 +87,10 @@
 
 {% block javascripts %}
     {{ parent() }}
+    
+    <script>
+        document.getElementById('saveEditorBtn').addEventListener('click', function(){
+            document.getElementById('submitEditorBtn').click();
+        });
+    </script>
 {% endblock %}

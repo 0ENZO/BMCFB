@@ -109,6 +109,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="tab-pane fade mt-5 px-2" id="pills-profiles" role="tabpanel" aria-labelledby="pills-profiles-tab">
                         <table class="table">
                             <thead>
@@ -130,8 +131,11 @@
                                         <td>{{ profile.content|length > '45'? profile.content|slice(0, 45)~'..': profile.content }}</td>                               
                                         <td class="text-center"><span class="badge badge-secondary">{{ profile.statements|length }}</span></td>
                                         <td>                                                                                           
-                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{# {{ path('category_edit', { 'id': category.id}) }} #}"><i class="fas fa-pen"></i></a>
-                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{{ path('unit_edit', { 'id': profile.id, 'type': 'profil'}) }}"><i class="fas fa-pen"></i></a>
+                                            <a class="no_style" href="#" data-href="{{ path('unit_delete', { 'id': profile.id, 'type': 'profil'}) }}" data-toggle="modal" data-placement="bottom" title="Supprimer" 
+                                            data-toggle="modal" data-target="#delete_modal">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -180,6 +184,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="tab-pane fade mt-5 px-2" id="pills-topics" role="tabpanel" aria-labelledby="pills-topics-tab">
                         <table class="table">
                             <thead>
@@ -200,7 +205,10 @@
                                         <td class="text-center"><span class="badge badge-secondary">{{ topic.statements|length }}</span></td>
                                         <td>                                                                                           
                                             <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{{ path('unit_edit', { 'id': topic.id, 'type': 'sujet'}) }}"><i class="fas fa-pen"></i></a>
-                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                            <a class="no_style" href="#" data-href="{{ path('unit_delete', { 'id': topic.id, 'type': 'sujet'}) }}" data-toggle="modal" data-placement="bottom" title="Supprimer" 
+                                            data-toggle="modal" data-target="#delete_modal">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -241,6 +249,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="tab-pane fade mt-5 px-2" id="pills-statements" role="tabpanel" aria-labelledby="pills-statements-tab">
                         <table class="table">
                             <thead>
@@ -248,7 +257,7 @@
                                     <th>Id</th>                                                                            
                                     <th>Titre</th>              
                                     <th>Sujet</th>
-                                    <th>Profile</th>
+                                    <th>Profil</th>
                                 </tr>
                             </thead>
 
@@ -264,8 +273,13 @@
                                         <td>{{ statement.topic.title }}</td>  
                                         <td>{{ statement.profile.title }}</td>  
                                         <td>                                                                                           
-                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{# {{ path('category_edit', { 'id': category.id}) }} #}"><i class="fas fa-pen"></i></a>
-                                            <a class="no_style" data-toggle="tooltip" data-placement="bottom" title="Supprimer" href="{# {{ path('category_delete', { 'id': category.id}) }} #}"><i class="fas fa-trash-alt"></i></a>
+                                            <a class="no_style mr-2" data-toggle="tooltip" data-placement="bottom" title="Modifier" href="{{ path('unit_edit', { 'id': statement.id, 'type': 'affirmation'}) }}">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a class="no_style" href="#" data-href="{{ path('unit_delete', { 'id': statement.id, 'type': 'affirmation'}) }}" data-toggle="modal" data-placement="bottom" title="Supprimer" 
+                                            data-toggle="modal" data-target="#delete_modal">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -321,6 +335,30 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="modal fade" id="delete_modal" tabindex="-1" role="dialog" aria-labelledby="deleteProfileModal" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header d-flex align-items-center bg-light-gray text-white" style="min-height: 75px;">
+                                    <div style="position: absolute; left: 50%; top: -45%;">
+                                        <div style="position: relative; left: -50%;">  
+                                            <img class="" src="{{ asset('/illustrations/cancel.svg') }}" alt="" style="max-width: 100%;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="my-4">
+                                        <h4 class="text-center">Êtes-vous sûr de vouloir supprimer ce contenu ?</h4>
+                                    </div>
+                                    <div class="col-md-9 d-flex justify-content-center mx-auto mt-3">
+                                        <button type="button" class="btn bg-light-gray font-weight-bold" data-dismiss="modal">Fermer</button>
+                                        <a class="btn bg-medium-blue text-white font-weight-bold">Supprimer</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         {% endif %}

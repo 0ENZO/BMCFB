@@ -162,7 +162,7 @@ class CoachController extends AbstractController
 
         if ($type == 'affirmation'){
             $statement = $em->getRepository(Statement::class)->findOneById($id);
-            $questionnaire = $topic->getQuestionnaire();
+            $questionnaire = $statement->getTopic()->getQuestionnaire();
             $statements = $em->getRepository(Statement::class)->findQuestionnaireStatements($questionnaire);
             $current = array_search($statement, $statements);
             $max = count($statements);
@@ -188,6 +188,35 @@ class CoachController extends AbstractController
         ]);
     }
 
+    /**
+    * @Route("unit/delete/{id}/{$type}", name="unit_delete", methods={"DELETE", "GET"})
+    */
+    public function unit_delete(EntityManagerInterface $em, Request $request, $id, $type): Response
+    {
+
+        if ($type == 'profil'){
+            $entity = $em->getRepository(Profile::class)->findOneById($id);
+            $questionnaire = $entity->getQuestionnaire();
+        }
+
+        if ($type == 'sujet'){
+            $entity = $em->getRepository(Topic::class)->findOneById($id);
+            $questionnaire = $entity->getQuestionnaire();
+        }
+
+        if ($type == 'affirmation'){
+            $entity = $em->getRepository(Statement::class)->findOneById($id);
+            $questionnaire = $entity->getTopic()->getQuestionnaire();
+        }
+
+        $em->remove($entity);
+        $em->flush();
+
+        $this->addFlash('info', " supprimé");
+        return $this->redirectToRoute('questionnaire_edit', [
+            'id' => $questionnaire->getId(),
+        ]);
+    }
 
     /**
      * @Route("/{id}/results", name="coach_results", requirements={"questionnaire"="\d+"})
@@ -232,12 +261,6 @@ class CoachController extends AbstractController
         }
     }
     
-    /**
-     * @Route("/new/{id}/{header}", name="module_new", methods={"GET","POST"})
-     * @IsGranted("ROLE_USER")
-    */
-    //public function new(Request $request, Course $course, ModuleRepository $moduleRepository, $header = 0): Response
-
     /**
      * @Route("/{id}/{email}/results", name="user_results")
      */

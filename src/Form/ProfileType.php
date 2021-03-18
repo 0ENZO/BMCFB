@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Profile;
 use Symfony\Component\Form\AbstractType;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -13,7 +14,12 @@ class ProfileType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('content')
+            ->add('content', CKEditorType::class, array(
+                'label' => false,
+                'config' => array(
+                    'uiColor' => '#ffffff',
+                )
+            ))
             ->add('questionnaire')
         ;
     }
