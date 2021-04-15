@@ -32,11 +32,14 @@
 
     <div class="col-md-6 pt-5 medium-gray content_div">
         <h2 class="mb-4">{{ questionnaire.name }}</h2>
-        <span class="text-muted">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-            when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-        </span>
+        <p class="text-muted">
+            Ce questionnaire se développe autour de 6 domaines d’exercice du management : décision, organisation, équipe, coopération, incertitudes, tensions. Evaluez vos façons de faire ACTUELLES en utilisant, pour répondre la grille suivante :
+        </p>
+        <span class="text-muted">0 = ne me correspond pas du tout</span></br>
+        <span class="text-muted">2 = ne correspond que de temps à autre à ce que je fais ou pense</span></br>
+        <span class="text-muted">4 = me correspond souvent, c'est souvent ce que je fais ou pense</span></br>
+        <span class="text-muted">6 = me correspond tout à fait, c'est tout à fait ce que je fais ou pense</span>
+        <p class="mt-2">Attention : toutes les phrases doivent être notées et chacune des 4 notes (0,2,4,6) doit être attribuée au moins une fois.</p>
         <div class="d-flex flex-row justify-content-start mx-auto mt-5">
             <a href="{{ path('questionnaire_play', {'id': next.id}) }}" class="btn bg-light-purple font-weight-bold py-2 px-4 text-white ml-0">Commencer !</a>
             {% if is_granted('ROLE_ADMIN') %}
