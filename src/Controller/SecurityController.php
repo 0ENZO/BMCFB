@@ -210,7 +210,8 @@ class SecurityController extends AbstractController
     /**
      * @Route("/magiclogin/{userEmail}", name="login_link")
      */
-    public function requestLoginLink(LoginLinkHandlerInterface $loginLinkHandler, Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $passwordEncoder, string $userEmail = null, \Swift_Mailer $mailer)
+    public function requestLoginLink(LoginLinkHandlerInterface $loginLinkHandler, Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $passwordEncoder, 
+    string $userEmail = null, MailerInterface $mailer)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
@@ -228,28 +229,18 @@ class SecurityController extends AbstractController
             $loginLinkDetails = $loginLinkHandler->createLoginLink($user);
             $loginLink = $loginLinkDetails->getUrl();
 
-            /*
-            return $this->render('security/magic_login.html.twig', [
-                'loginLink' => $loginLink,
-                'linkEmail' => json_encode($userEmail),
-            ]);
-            */
-
-            $email = (new \Swift_Message());
-            $email->setSubject('Nouveau commentaire');
-            $email->setFrom(['equipe@makelearn.fr' => "L'équipe Learn"]);
-            $email->setTo($userEmail);
-            $email->setBcc('equipe@makelearn.fr');
-            $email->addCc('enzo.arhab@dsides.net');
-            $email->setBody(
-                $this->renderView('email/send_magic_link.html.twig',[
+            $email = (new TemplatedEmail())
+                ->from('equipe@makelearn.fr')
+                ->to($userEmail)
+                ->bcc('equipe@makelearn.fr')
+                ->replyTo('equipe@makelearn.fr')
+                ->subject('BMCFB | Lien de connexion')
+                ->htmlTemplate('email/send_magic_link.html.twig')
+                ->context([
                     'loginLink' => $loginLink,
-                ]),
-                'text/html'
-            );
+                ]);
             $mailer->send($email);
 
-            //return $this->redirect($loginLink);
             return $this->redirectToRoute('magic_link_sent', [
                 'email' => $userEmail,
             ]);
@@ -258,33 +249,6 @@ class SecurityController extends AbstractController
             dump('EMAIL PAS VALIDE');
             throw new BadRequestHttpException('Email non valide');
         }
-
-/*
-        // check if login form is submitted
-        if ($request->isMethod('POST')) {
-            // load the user in some way (e.g. using the form input)
-            $email = $request->request->get('email');
-
-            // si l'user n'existe pas, on le créait et on lui envoie le lien par mail 
-            $user = $userRepository->findOneBy(['email' => $email]);
-
-            // create a login link for $user this returns an instance
-            // of LoginLinkDetails
-            $loginLinkDetails = $loginLinkHandler->createLoginLink($user);
-            $loginLink = $loginLinkDetails->getUrl();
-
-            return $this->render('security/magic_login.html.twig', [
-                'loginLink' => $loginLink,
-                'linkEmail' => json_encode($userEmail),
-            ]);
-            // ... send the link and return a response (see next section)
-        }
-
-        // if it's not submitted, render the "login" form
-        return $this->render('security/magic_login.html.twig', [
-            'linkEmail' => json_encode($userEmail),
-        ]);
-        */
     }
 
     /**
@@ -298,21 +262,5 @@ class SecurityController extends AbstractController
             'data' => 'oeoeoeoeoeoeooeoee',
         ]));
         $response->headers->set('Content-Type', 'application/json');
-
-        /*
-        $response = $this->client->request(
-            'GET', 
-            'http://localhost:8001/requestTest'
-        );
-
-        try {
-            $response->getHeaders();
-        } catch (\Exception $e) {
-            var_dump($e->getMessage());
-        }
-        dump($response);
-        
-        return $this->render('security/magic_login.html.twig');
-        */
     }
 }
