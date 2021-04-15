@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div id="login_content" class="container p-md-5 p-3 full_page_container">
+    <div class="row" style="flex-grow: 1;"> {# flex-grow fix pour IE11 #}
+        <div class="col-lg-5 col-md-8 mx-auto">
+
+            {% if loginLink is defined and loginLink is not null %}
+                <a href="{{ loginLink }}"> lien magique </a>
+            {% endif %}
+
+            <form action="{{ path('login_link') }}" method="POST">
+                <input type="email" name="email">
+                <button type="submit">Send Login Link</button>
+            </form>
+
+            <div class="d-flex justify-content-center">
+                <p>Pas de compte ? Inscrivez vous <a href="{{ path('app_register') }}">ici</a></p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        alert({{ linkEmail|raw }});
+    </script>
+{% endblock %}

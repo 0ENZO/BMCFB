@@ -4,17 +4,23 @@ namespace App\Controller;
 
 use Exception;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Security\LoginFormAuthenticator;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\LoginLink\LoginLinkHandlerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
@@ -191,5 +197,122 @@ class SecurityController extends AbstractController
         
         return $this->render('security/password_reset.html.twig', ['token' => $token]);
 
+    }
+
+    /**
+     * @Route("/login_check", name="login_check")
+     */
+    public function check()
+    {
+        throw new \LogicException('This code should never be reached');
+    }
+
+    /**
+     * @Route("/magiclogin/{userEmail}", name="login_link")
+     */
+    public function requestLoginLink(LoginLinkHandlerInterface $loginLinkHandler, Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $passwordEncoder, string $userEmail = null, \Swift_Mailer $mailer)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
+
+        if(filter_var($userEmail, FILTER_VALIDATE_EMAIL)){
+            if (!$user) {
+                $user = new User();
+                $plainPassword = 'azerty';
+                $password = $passwordEncoder->encodePassword($user, $plainPassword);
+                $user->setPassword($password);
+                $user->setEmail($userEmail);
+                $em->persist($user);
+                $em->flush();
+            }
+            $loginLinkDetails = $loginLinkHandler->createLoginLink($user);
+            $loginLink = $loginLinkDetails->getUrl();
+
+            /*
+            return $this->render('security/magic_login.html.twig', [
+                'loginLink' => $loginLink,
+                'linkEmail' => json_encode($userEmail),
+            ]);
+            */
+
+            $email = (new \Swift_Message());
+            $email->setSubject('Nouveau commentaire');
+            $email->setFrom(['equipe@makelearn.fr' => "L'équipe Learn"]);
+            $email->setTo($userEmail);
+            $email->setBcc('equipe@makelearn.fr');
+            $email->addCc('enzo.arhab@dsides.net');
+            $email->setBody(
+                $this->renderView('email/send_magic_link.html.twig',[
+                    'loginLink' => $loginLink,
+                ]),
+                'text/html'
+            );
+            $mailer->send($email);
+
+            //return $this->redirect($loginLink);
+            return $this->redirectToRoute('magic_link_sent', [
+                'email' => $userEmail,
+            ]);
+
+        }else{
+            dump('EMAIL PAS VALIDE');
+            throw new BadRequestHttpException('Email non valide');
+        }
+
+/*
+        // check if login form is submitted
+        if ($request->isMethod('POST')) {
+            // load the user in some way (e.g. using the form input)
+            $email = $request->request->get('email');
+
+            // si l'user n'existe pas, on le créait et on lui envoie le lien par mail 
+            $user = $userRepository->findOneBy(['email' => $email]);
+
+            // create a login link for $user this returns an instance
+            // of LoginLinkDetails
+            $loginLinkDetails = $loginLinkHandler->createLoginLink($user);
+            $loginLink = $loginLinkDetails->getUrl();
+
+            return $this->render('security/magic_login.html.twig', [
+                'loginLink' => $loginLink,
+                'linkEmail' => json_encode($userEmail),
+            ]);
+            // ... send the link and return a response (see next section)
+        }
+
+        // if it's not submitted, render the "login" form
+        return $this->render('security/magic_login.html.twig', [
+            'linkEmail' => json_encode($userEmail),
+        ]);
+        */
+    }
+
+    /**
+     * @Route("/requestTest", name="requestTest")
+     */
+    public function requestTest()
+    {
+        
+        $response = new Response();
+        $response->setContent(json_encode([
+            'data' => 'oeoeoeoeoeoeooeoee',
+        ]));
+        $response->headers->set('Content-Type', 'application/json');
+
+        /*
+        $response = $this->client->request(
+            'GET', 
+            'http://localhost:8001/requestTest'
+        );
+
+        try {
+            $response->getHeaders();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+        dump($response);
+        
+        return $this->render('security/magic_login.html.twig');
+        */
     }
 }

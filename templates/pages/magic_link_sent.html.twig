@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} - Lien envoyé {% endblock %}
+
+{% block body %}
+
+    <div class="container-fluid">
+        <div class="d-flex col-md-11 justify-content-between mx-auto" style="margin-top: 5%;">
+        
+            <div class="col-md-6 pt-5 medium-gray content_div">
+                <h2 class="mb-4">Lien de connexion envoyé!</h2>
+                <p class="text-muted">
+                    Psst! Un lien de connexion vous a été envoyé par mail, pensez à regarder vos spams. 
+                </p>
+                <div class="d-flex flex-row justify-content-start mx-auto mt-5">
+                    <a href="{{ path('login_link', {'userEmail': email}) }}" class="btn bg-light-purple font-weight-bold py-2 px-4 text-white ml-0">Renvoyer un email</a>
+                </div>
+            </div>
+        
+            <div class="col-md-5 p-0 m-0 illustration_div">
+                <img src="{{ asset('/shapes/medium_shape_transparent_blue.svg') }}" alt="" class="medium_shape">
+                <img src="{{ asset('/illustrations/mail_sent.svg') }}" alt="" style="position: relative; max-width:80%; left: -12.5%;">
+            </div>
+        </div>
+                
+    </div>
+
+{% endblock %}

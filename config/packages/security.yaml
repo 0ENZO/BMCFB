@@ -1,4 +1,7 @@
 security:
+
+    enable_authenticator_manager: true
+
     encoders:
         App\Entity\User:
             algorithm: auto
@@ -19,8 +22,8 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
-            lazy: true
+            # anonymous: true
+            # lazy: true
             provider: app_user_provider
             guard:
                 authenticators:
@@ -29,6 +32,9 @@ security:
                 path: app_logout
                 # where to redirect after logout
                 # target: app_any_route
+            login_link:
+                check_route: login_check
+                signature_properties: ['email']
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
