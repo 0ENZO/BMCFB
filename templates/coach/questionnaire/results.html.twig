@@ -18,9 +18,9 @@
                                     alt="Generic placeholder image" height="35" width="35">
         
                                 {% if user.firstName is defined and user.firstName is not null and user.lastName is defined and user.lastName is not null %}
-                                    <span class="text_small_responsive"> {{ user.firstName }} {{ user.lastName }}</span>
+                                    <span class="text_small_responsive"> {{ user.firstName|capitalize }} {{ user.lastName|capitalize }}</span>
                                 {% else %}
-                                    <span class="text_small_responsive">{{ user.email }}</span>
+                                    <span class="text_small_responsive">{{ user.email|capitalize }}</span>
                                 {% endif %}
                             </div>
                             <a href="{{ path('user_results', {'id': questionnaire.id, 'email': user.email}) }}" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">

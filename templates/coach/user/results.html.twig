@@ -6,7 +6,13 @@
     <div class="container-fluid">
         <div class="col-md-10 mx-auto my-5">
             <div class="d-flex row justify-content-center">
-                <h2>{{ questionnaire.name }}</h2>
+                <h2>Résultats de
+                    {% if user.firstName is defined and user.firstName is not null and user.lastName is defined and user.lastName is not null %}
+                        {{ user.firstName|capitalize }} {{ user.lastName|capitalize }}
+                    {% else %}
+                        {{ user.email|capitalize }}
+                    {% endif %}
+                </h2>
             </div>
             <hr>
             
@@ -14,16 +20,16 @@
             <table class="table table-bordered text-center">
                 <tbody>
                     <thead>
-                        <tr>
+                        <tr class="">
                             {% for profileName in profileNames %}
-                                <th scope="col">{{ profileName }}</th>
+                                <th class="w-25" scope="">{{ profileName }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <tr class="">
                             {% for profileRate in profileRates %}
-                                <td scope="col">{{ profileRate }}</td>
+                                <td class="w-25" scope="">{{ profileRate }}</td>
                             {% endfor %}
                         </tr>
                     </tbody>

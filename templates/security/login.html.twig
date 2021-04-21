@@ -8,7 +8,14 @@
 
 <div id="login_content" class="full_page_container container px-0 p-md-3">
     {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        <div class="container-fluid mt-5">
+            <div class="alert alert-dismissible alert_temp fade show alert-warning mt-3">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        </div>
     {% endif %}
 
     {% if app.user %}

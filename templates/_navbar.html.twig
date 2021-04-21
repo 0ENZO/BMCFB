@@ -20,7 +20,7 @@ box-shadow: 0px 20px 40px rgb(18 34 64 / 10%);
                     <a class="nav-link text-dark d-md-none d-block" href="{{ path('user_profile') }}"><i class="fas fa-user-circle fa-fw mr-1"></i></a>
                 </li>
 
-                {% if is_granted('ROLE_ADMIN') %}
+                {% if is_granted('ROLE_COACH') %}
                     <li class="nav-item mr-3">
                         <a class="nav-link text-dark d-none d-md-block" href="{{ path('coach_index') }}"><i class="fas fa-tools fa-fw mr-1"></i>Administration</a>
                         <a class="nav-link text-dark d-md-none d-block" href="{{ path('coach_index') }}"><i class="fas fa-tools fa-fw mr-1"></i></a>

@@ -259,7 +259,7 @@ class SecurityController extends AbstractController
         
         $response = new Response();
         $response->setContent(json_encode([
-            'data' => 'oeoeoeoeoeoeooeoee',
+            'data' => 'test',
         ]));
         $response->headers->set('Content-Type', 'application/json');
     }

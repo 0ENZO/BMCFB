@@ -256,7 +256,7 @@ class CoachController extends AbstractController
                 'names' => $names
             ]);
         }else{
-            $this->addFlash('warning', 'Le questionnaire est en cours de rédaction, impossible de visualiser les résultats.');
+            $this->addFlash('warning', 'Aucun participant n\'a encore répondu au questionnaire, impossible de visualiser les résultats.');
             return $this->redirectToRoute('coach_index');
         }
     }
@@ -333,8 +333,12 @@ class CoachController extends AbstractController
         for ($countRecord = 0; $countRecord < count($records);) { 
             for ($countProfiles = 0; $countProfiles < count($profiles); $countProfiles++) { 
                 for ($countUsers = 0; $countUsers < count($users); $countUsers++) { 
-                    $rates[$countProfiles] += $records[$countRecord]->getRate();
-                    $countRecord++;
+                    /* Fix pour afficher les résultats en local, countRecord accède à l'emplacement count($records) 
+                    alors qu'il ne peut pas aller au delà de count($records)-1
+                    if($countRecord < count($records)){ */
+                        $rates[$countProfiles] += $records[$countRecord]->getRate();
+                        $countRecord++;
+                    //}
                 }
                 $countUsers = 0;
             }
