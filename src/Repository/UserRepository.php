@@ -42,6 +42,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findAsAnswered($statement)
     {
         return $this->createQueryBuilder('u')
+            ->where('u.roles NOT LIKE :role ')
+            ->setParameter('role','%ROLE_COACH%')
+            ->andWhere('u.roles NOT LIKE :role2 ')
+            ->setParameter('role2','%ROLE_ADMIN%')
             ->leftJoin('u.records', 'r')
             ->andWhere('r.statement = :statement')->setParameter('statement', $statement)
             ->getQuery()
