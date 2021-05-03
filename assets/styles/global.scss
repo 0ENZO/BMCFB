@@ -478,6 +478,25 @@ ul.timeline > li:before {
       color: #476ff5;
     }
   }
+
+  .modal-content{
+    border-radius: 1.5rem;
+    border: 0px;
+
+    .modal-header{
+      border-radius: 1.4rem 1.4rem 0 0;
+      border: 0px;
+
+      .close{
+        color: white;
+      }
+    }
+  }
+}
+
+// RESULT PAGE
+
+#questionnaireResults{
   .modal-content{
     border-radius: 1.5rem;
     border: 0px;

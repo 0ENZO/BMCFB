@@ -3,13 +3,16 @@
 
 {% block body %}
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="questionnaireResults">
         <div class="col-md-10 mx-auto my-5">
             <div class="d-flex row justify-content-center">
                 <h2>{{ questionnaire.name }}</h2>
             </div>
             <hr>
             <div class="d-flex row">
+                <div class="fixed-btn px-3">
+                    <a class="medium-blue" href="#" id="calculate"><i class="fas fa-calculator" aria-hidden="true"></i></a>
+                </div>
                 <div class="col-md-6 align-items-center">
                     {% for user in users %}
                         <div class="d-flex justify-content-between align-items-center listUsers my-4 px-3">
@@ -23,10 +26,14 @@
                                     <span class="text_small_responsive">{{ user.email|capitalize }}</span>
                                 {% endif %}
                             </div>
-                            <a href="{{ path('user_results', {'id': questionnaire.id, 'email': user.email}) }}" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">
-                                <i class="fas fa-eye"></i>
-                            </a>
-    
+                            <div class=" d-flex justify-content-end align-items-center">
+                                <a href="{{ path('user_results', {'id': questionnaire.id, 'email': user.email}) }}" target="_blank" class="mr-2" data-toggle="tooltip" data-placement="top" title="Voir résultats">
+                                    <i class="fas fa-eye medium-blue"></i>
+                                </a>
+                                <a class="medium-blue mr-2 selectResults" href="#" data-uid="{{user.id}}">
+                                    <i class="far fa-square" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -51,5 +58,125 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="modal_error_calculate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-center bg-medium-blue text-white">
+                        <h4 class="font_size_1250 modal-title mb-0" id="myModalLabel">Erreur</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                        </button>
+                    </div>
+                    <div class="modal-body bg-body">
+                        <div class="mb-4">
+                            <p>Vous devez selectionner au minimum 2 répondants afin de calculer la moyenne des résultats</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_show_calculated" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-center bg-medium-blue text-white">
+                        <h4 class="font_size_1250 modal-title mb-0" id="myModalLabel">Moyenne des résultats sélectionnés</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                        </button>
+                    </div>
+                    <div class="modal-body bg-body">
+                        <div class="text-center mb-3">
+                            <button id="copy_calculated_table" class="btn bg-medium-blue font-weight-bold text-white my-3">Copier</button>
+                        </div>
+                        <div class="col-md-9 mx-auto mb-4">
+                            <table class="table table-bordered" id="calculated_table">
+                                <tbody>        
+                                    {% for i in 0..rates|length - 1%}
+                                        <tr>
+                                            <th class="">{{ names[i]|capitalize }}</th>
+                                            <td class="calculate_rates"></td>
+                                        </tr>
+                                    {% endfor %}
+        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+        let usersList= [];
+
+        document.querySelectorAll('.selectResults').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            console.log('touché');
+            let icon = btn.firstElementChild.className;
+            if (icon == 'far fa-square'){
+                if(usersList.indexOf(btn.dataset.uid) == -1){
+                    usersList.push(btn.dataset.uid);
+                    btn.firstElementChild.className = 'far fa-check-square';
+                }
+            } else {
+                if(usersList.indexOf(btn.dataset.uid) != -1){
+                    btn.firstElementChild.className = 'far fa-square';
+                    let index = usersList.indexOf(btn.dataset.uid);
+                    usersList.splice(index, 1);
+                }
+            }
+        })
+    })
+
+    let questionnaire = {{questionnaire.id|raw}};
+    document.getElementById('calculate').addEventListener('click', function(){
+
+        if(usersList.length < 2){
+            $('#modal_error_calculate').modal('show'); 
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/coach/calculate_results/" + questionnaire,
+            data: JSON.stringify(usersList),
+            success: function (data) {
+                if(data.rates){
+                    let index = 0;
+                    document.querySelectorAll('.calculate_rates').forEach((td) => {
+                        td.innerHTML = data.rates[index];
+                        index += 1;
+                    })
+                    $('#modal_show_calculated').modal('show'); 
+                }
+            },
+        })
+    })
+
+    var copyBtn = document.querySelector('#copy_calculated_table');
+    copyBtn.addEventListener('click', function () {
+
+        var urlField = document.querySelector('#calculated_table');
+        
+        // create a Range object
+        var range = document.createRange();  
+        // set the Node to select the "range"
+        range.selectNode(urlField);
+        // add the Range to the set of window selections
+        window.getSelection().addRange(range);
+        
+        // execute 'copy', can't 'cut' in this case
+        document.execCommand('copy');
+    }, false);
+
+    </script>
 {% endblock %}

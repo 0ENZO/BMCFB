@@ -18,6 +18,8 @@
     <body class="bg-light-gray pt54">
         {% block navbar %} {{ include('_navbar.html.twig') }} {% endblock navbar %}
         {% block body %} {% endblock %}
-        {% block javascripts %} {{ encore_entry_script_tags('app') }} {% endblock %}
+        {% block javascripts %}  
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
     </body>
 </html>

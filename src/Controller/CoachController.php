@@ -4,22 +4,23 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Topic;
+use App\Entity\Track;
 use App\Entity\Record;
 use App\Entity\Profile;
-use App\Entity\Statement;
-use App\Entity\Questionnaire;
-use App\Entity\Track;
-use App\Form\ProfileType;
-use App\Form\QuestionnaireType;
-use App\Form\StatementType;
 use App\Form\TopicType;
+use App\Entity\Statement;
+use App\Form\ProfileType;
+use App\Form\StatementType;
 use App\Service\UserResult;
+use App\Entity\Questionnaire;
+use App\Form\QuestionnaireType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/coach")
@@ -295,6 +296,53 @@ class CoachController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/calculate_results/{id}", name="calculate_results", methods={"GET","POST"}, requirements={"id"="\d+"})
+     * @IsGranted("ROLE_COACH")
+     */
+    public function calculateResults(Questionnaire $questionnaire, UserResult $userResultService, Request $request): Response
+    {
+
+        if ($request->isXMLHttpRequest()) {
+            $usersList = json_decode($request->getContent());
+            $users = [];
+
+            foreach($usersList as $uid) {      
+                array_push($users, $this->getDoctrine()->getRepository(User::class)->find($uid));
+            }
+
+            $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
+            $rates = $this->getQuestionnaireProfilesResults($questionnaire, $users);
+            $names = [];
+
+            foreach($profiles as $profile) {
+                array_push($names, $profile->getTitle());
+            }   
+
+            $axisNames = ["sens", "systeme", "social", "coherence"];
+            foreach ($axisNames as $axis){
+                array_push($names, $axis);
+                array_push($rates, $this->getAxisAverage($axis, $names, $rates));
+            }
+
+            array_push($names, "Leadership");
+            array_push($rates, $userResultService->getLeadershipIndex($this->getQuestionnairesAverageResults($questionnaire)));
+
+            array_push($names, "Management");
+            array_push($rates, $userResultService->getManagementIndex($this->getQuestionnairesAverageResults($questionnaire)));
+
+            array_push($names, "Fiabilité");
+            array_push($rates, $userResultService->getFiabilityIndex($rates));
+            
+            return new JsonResponse([
+                'rates' => $rates,
+                'names' => $names
+            ]);
+        }
+        return new Response('This is not ajax!', 400);
+    }
+
     /**
      * Retourne la liste des users ayant terminé le questionnaire
      * @param [type] $questionnaire
@@ -318,9 +366,11 @@ class CoachController extends AbstractController
      * @param [type] $questionnaire
      * @return 
      */
-    private function getQuestionnaireProfilesResults($questionnaire){
+    private function getQuestionnaireProfilesResults($questionnaire, $users = null){
 
-        $users = $this->getQuestionnaireGoodStudents($questionnaire);
+        if ($users == null){
+            $users = $this->getQuestionnaireGoodStudents($questionnaire);
+        }
         $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
         $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
         $records = $this->getDoctrine()->getRepository(Record::class)->findByTopicsAndUsers($topics, $users);
@@ -333,12 +383,12 @@ class CoachController extends AbstractController
         for ($countRecord = 0; $countRecord < count($records);) { 
             for ($countProfiles = 0; $countProfiles < count($profiles); $countProfiles++) { 
                 for ($countUsers = 0; $countUsers < count($users); $countUsers++) { 
-                    /* Fix pour afficher les résultats en local, countRecord accède à l'emplacement count($records) 
-                    alors qu'il ne peut pas aller au delà de count($records)-1
-                    if($countRecord < count($records)){ */
+                    /* Fix pour afficher les résultats en local, countRecord accède à l'emplacement 
+                       count($records) alors qu'il ne peut pas aller au delà de count($records)-1 */
+                    if($countRecord < count($records)){ 
                         $rates[$countProfiles] += $records[$countRecord]->getRate();
                         $countRecord++;
-                    //}
+                    }
                 }
                 $countUsers = 0;
             }

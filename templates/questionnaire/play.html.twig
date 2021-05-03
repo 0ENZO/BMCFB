@@ -57,7 +57,12 @@
             <div class="progressbar-endpoint bg-medium-blue p-0" style="margin-left: {{percent - 0.5}}%!important;" data-toggle="tooltip" data-placement="top" title="Thème {{ currentTopic~' sur  '~maxTopic }}"></div>
         </div>
         <button class="btn bg-medium-blue text-white text-center mr-5 font-weight-bold submitRecords" type="submit" id="submitRecords" disabled>
-            SUJET SUIVANT<i class="fas fa-arrow-right ml-2"></i>
+            {% if currentTopic == maxTopic %} 
+                TERMINER 
+            {% else %} 
+                SUJET SUIVANT 
+                <i class="fas fa-arrow-right ml-2"></i>
+            {% endif %}
         </button>
     </div>
     
@@ -69,7 +74,12 @@
 
     <div class="d-md-none d-block col-11 mx-auto mb-4"> 
         <button class="btn bg-medium-blue text-white text-center font-weight-bold w-100 m-0 submitRecords" style="border-radius: 10px!important;" type="submit" id="submitRecords" disabled>
-            SUJET SUIVANT<i class="fas fa-arrow-right ml-2"></i>
+            {% if currentTopic == maxTopic %} 
+                TERMINER 
+            {% else %} 
+                SUJET SUIVANT 
+                <i class="fas fa-arrow-right ml-2"></i>
+            {% endif %}
         </button>
     </div>
 
