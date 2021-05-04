@@ -88,9 +88,9 @@
                     </div>
                     <div class="modal-body bg-body">
                         <div class="text-center mb-3">
-                            <button id="copy_calculated_table" class="btn bg-medium-blue font-weight-bold text-white my-3">Copier</button>
+                            <button id="copy_calculated_table" class="btn bg-medium-blue font-weight-bold text-white my-3" onclick="selectElementContents( document.getElementById('calculated_table') );">Copier</button>
                         </div>
-                        <div class="col-md-9 mx-auto mb-4">
+                        <div class="col-md-9 mx-auto my-4">
                             <table class="table table-bordered" id="calculated_table">
                                 <tbody>        
                                     {% for i in 0..rates|length - 1%}
@@ -120,7 +120,6 @@
 
         document.querySelectorAll('.selectResults').forEach((btn) => {
         btn.addEventListener('click', () => {
-            console.log('touché');
             let icon = btn.firstElementChild.className;
             if (icon == 'far fa-square'){
                 if(usersList.indexOf(btn.dataset.uid) == -1){
@@ -162,6 +161,7 @@
         })
     })
 
+    /* Fonctionne pas en prod sur chrome
     var copyBtn = document.querySelector('#copy_calculated_table');
     copyBtn.addEventListener('click', function () {
 
@@ -177,6 +177,30 @@
         // execute 'copy', can't 'cut' in this case
         document.execCommand('copy');
     }, false);
+    */
+  
+    function selectElementContents(el) {
+        var body = document.body, range, sel;
+        if (document.createRange && window.getSelection) {
+            range = document.createRange();
+            sel = window.getSelection();
+            sel.removeAllRanges();
+            try {
+                range.selectNodeContents(el);
+                sel.addRange(range);
+            } catch (e) {
+                range.selectNode(el);
+                sel.addRange(range);
+            }
+            document.execCommand("copy");
 
+        } else if (body.createTextRange) {
+            range = body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+            range.execCommand("Copy");
+        }
+    }
+   
     </script>
 {% endblock %}
