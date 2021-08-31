@@ -11,7 +11,9 @@ use App\Entity\Profile;
 use App\Entity\Statement;
 use App\Service\UserResult;
 use App\Entity\Questionnaire;
+use App\Repository\QuestionnaireRepository;
 use App\Repository\RecordRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -328,5 +330,48 @@ class QuestionnaireController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $em->persist($track);
         $em->flush();
+    }
+
+    /**
+     * @Route("/duplicate/{id}", name="questionnaire_duplicate")
+     */
+    public function duplicate(Questionnaire $questionnaire, EntityManagerInterface $em, QuestionnaireRepository $questionnaireRepository){
+        $newQuestionnaire = clone $questionnaire;
+
+        $oldSlug = $questionnaire->getSlug();
+        $lastChar = substr($oldSlug, -1);
+
+        //Incrémente les noms et slug des espace Ex : Bdf dupliqué sera Bdf1 / Bdf1 dupliqué sera Bdf2 etc.
+        $i = 1;
+        if (is_numeric($lastChar)){
+            while ($questionnaireRepository->findOneBy(['slug' => substr($oldSlug, 0, -1).$i])) {
+                $i+=1;
+            }
+            $newQuestionnaire->setSlug(substr($oldSlug, 0, -1).$i);
+            $newQuestionnaire->setName(substr($questionnaire->getName(), 0, -1).$i);
+        }else{
+            while ($questionnaireRepository->findOneBy(['slug' => $oldSlug.$i])) {
+                $i+=1;
+            }
+            $newQuestionnaire->setSlug($oldSlug.$i);
+            $newQuestionnaire->setName($questionnaire->getName().' '.$i);
+        }
+        $em->persist($newQuestionnaire);
+
+        $topics = $em->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);
+        foreach ($topics as $topic) {
+            $newTopic = clone $topic;
+            $newTopic->setQuestionnaire($newQuestionnaire);
+            $em->persist($newTopic);
+
+            foreach ($topic->getStatements() as $statement) {
+                $newStatement = clone $statement;
+                $newStatement->setTopic($newTopic);
+                $em->persist($newStatement);
+            }
+        }
+        $em->flush();
+        $this->addFlash('info', "Le questionnaire a bien été dupliqué");
+        return $this->redirectToRoute('coach_index');
     }
 }

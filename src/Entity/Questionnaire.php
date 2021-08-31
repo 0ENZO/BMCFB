@@ -76,10 +76,16 @@ class Questionnaire
      */
     private $profiles;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Record::class, mappedBy="questionnaire")
+     */
+    private $records;
+
     public function __construct()
     {
         $this->topics = new ArrayCollection();
         $this->profiles = new ArrayCollection();
+        $this->records = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -245,5 +251,35 @@ class Questionnaire
     public function __toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return Collection|Record[]
+     */
+    public function getRecords(): Collection
+    {
+        return $this->records;
+    }
+
+    public function addRecord(Record $record): self
+    {
+        if (!$this->records->contains($record)) {
+            $this->records[] = $record;
+            $record->setQuestionnaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecord(Record $record): self
+    {
+        if ($this->records->removeElement($record)) {
+            // set the owning side to null (unless already changed)
+            if ($record->getQuestionnaire() === $this) {
+                $record->setQuestionnaire(null);
+            }
+        }
+
+        return $this;
     }
 }

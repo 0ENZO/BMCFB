@@ -39,6 +39,11 @@ class Record
      */
     private $date;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Questionnaire::class, inversedBy="records")
+     */
+    private $questionnaire;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -95,5 +100,17 @@ class Record
     public function __toString()
     {
         return ''.$this->rate;
+    }
+
+    public function getQuestionnaire(): ?Questionnaire
+    {
+        return $this->questionnaire;
+    }
+
+    public function setQuestionnaire(?Questionnaire $questionnaire): self
+    {
+        $this->questionnaire = $questionnaire;
+
+        return $this;
     }
 }

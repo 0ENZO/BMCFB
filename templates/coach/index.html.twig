@@ -24,6 +24,7 @@
 
                     <div class="col-md-4 card mr-4 px-0">
                         <a href="{{ path('questionnaire_edit', {'id': questionnaire.id}) }}" class="text-right medium-blue" style="position: absolute; top:10px; z-index: 100; right:5px;"><i class="fas fa-cog"></i></a>
+                        <a href="{{ path('questionnaire_duplicate', {'id': questionnaire.id}) }}" class="text-left medium-blue" style="position: absolute; top:10px; z-index: 100; left:5px;"><i class="far fa-copy"></i></a>
                         <img class="card-img-top" src="https://picsum.photos/300/100" alt="Card image cap" style="position: relative;">
                         <div class="card-body">
                             <h5 class="card-title">{{ questionnaire.name }}</h5>
@@ -31,7 +32,9 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-between">
-                                <small class=""><a class="medium-blue" href="{{ path('questionnaire_show', {'slug': questionnaire.slug}) }}">Voir le questionnaire</a></small>
+                                {% if questionnaire.slug is defined and questionnaire.slug is not null %}
+                                    <small class=""><a class="medium-blue" href="{{ path('questionnaire_show', {'slug': questionnaire.slug}) }}">Voir le questionnaire</a></small>
+                                {% endif %}
                                 <small class=""><a class="medium-blue" href="{{ path('coach_results', {'id': questionnaire.id}) }}">Voir les résultats</a></small>
                             </div>
                         </div>
