@@ -198,7 +198,7 @@ class QuestionnaireController extends AbstractController
         }
 
         if ($finished == false) {
-            $this->addFlash('warning', 'Vous ne pouvez pas accéder à votre bilan tant que vous n\'avez pas finit de compléter le questionnaire');
+            $this->addFlash('warning', "Vous devez compléter le questionnaire pour accéder à votre bilan");
             return $this->redirectToRoute('questionnaire_show', [
                 'slug' => $questionnaire->getSlug(),
             ]);
@@ -206,11 +206,11 @@ class QuestionnaireController extends AbstractController
 
         $finalResults = $userResultService->getUserResultsFromQuestionnaire($questionnaire, $user);
 
-        $profileNames = $finalResults[0];
-        $profileRates = $finalResults[1];
-        $average = $finalResults[2];
-        $axisNames = $finalResults[3];
-        $axisRates = $finalResults[4];
+        $profileNames = $finalResults['profileNames'];
+        $profileRates = $finalResults['profileRates'];
+        $average = $finalResults['average'];
+        $axisNames = $finalResults['axisNames'];
+        $axisRates = $finalResults['axisRates'];
 
         return $this->render('questionnaire/bilan.html.twig', [
             'user' => $user,

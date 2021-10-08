@@ -226,17 +226,20 @@ class CoachController extends AbstractController
     {
         $users = $this->getQuestionnaireGoodStudents($questionnaire);
 
-        if($users){
-            $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
-            $rates = $this->getQuestionnaireProfilesResults($questionnaire);
-            $names = [];
+        if ($users) {
 
+            $profiles = $this->getDoctrine()->getRepository(Profile::class)->findBy([
+                'questionnaire' => $questionnaire,
+            ]);
+            $rates = $this->getQuestionnaireProfilesResults($questionnaire);
+            
+            $names = [];
             foreach($profiles as $profile) {
-                array_push($names, $profile->getTitle());
-            }   
+                $names[] = $profile->getTitle();
+            }
 
             $axisNames = ["sens", "systeme", "social", "coherence"];
-            foreach ($axisNames as $axis){
+            foreach ($axisNames as $axis) {
                 array_push($names, $axis);
                 array_push($rates, $this->getAxisAverage($axis, $names, $rates));
             }
@@ -250,13 +253,24 @@ class CoachController extends AbstractController
             array_push($names, "Fiabilité");
             array_push($rates, $userResultService->getFiabilityIndex($rates));
 
+
+
+            $usersScores = [];
+            foreach ($users as $user) {
+                $usersScores[] = $this->getScores($user, $questionnaire);
+            }
+
+            $averageScores = $this->getAverage($usersScores);
+
             return $this->render('coach/questionnaire/results.html.twig', [
                 'questionnaire' => $questionnaire,
                 'users' => $users,
-                'rates' => $rates,
+                'rates' => $averageScores,
                 'names' => $names
             ]);
-        }else{
+
+        } else {
+
             $this->addFlash('warning', 'Aucun participant n\'a encore répondu au questionnaire, impossible de visualiser les résultats.');
             return $this->redirectToRoute('coach_index');
         }
@@ -270,10 +284,11 @@ class CoachController extends AbstractController
         $user = $this->getDoctrine()->getRepository(User::class)->findOneByEmail($email);
         $finalResults = $userResultService->getUserResultsFromQuestionnaire($questionnaire, $user);
 
-        $profileNames = $finalResults[0];
-        $profileRates = $finalResults[1];
-        $axisNames = $finalResults[3];
-        $axisRates = $finalResults[4];
+        $profileNames = $finalResults['profileNames'];
+        $profileRates = $finalResults['profileRates'];
+        $axisNames = $finalResults['axisNames'];
+        $axisRates = $finalResults['axisRates'];
+
         $indexNames = ["Leadership", "Management", "Fiabilité"];
         $indexRates = [];
 
@@ -297,51 +312,7 @@ class CoachController extends AbstractController
     }
 
 
-    /**
-     * @Route("/calculate_results/{id}", name="calculate_results", methods={"GET","POST"}, requirements={"id"="\d+"})
-     * @IsGranted("ROLE_COACH")
-     */
-    public function calculateResults(Questionnaire $questionnaire, UserResult $userResultService, Request $request): Response
-    {
-
-        if ($request->isXMLHttpRequest()) {
-            $usersList = json_decode($request->getContent());
-            $users = [];
-
-            foreach($usersList as $uid) {      
-                array_push($users, $this->getDoctrine()->getRepository(User::class)->find($uid));
-            }
-
-            $profiles = $this->getDoctrine()->getRepository(Profile::class)->findByQuestionnaire($questionnaire);
-            $rates = $this->getQuestionnaireProfilesResults($questionnaire, $users);
-            $names = [];
-
-            foreach($profiles as $profile) {
-                array_push($names, $profile->getTitle());
-            }   
-
-            $axisNames = ["sens", "systeme", "social", "coherence"];
-            foreach ($axisNames as $axis){
-                array_push($names, $axis);
-                array_push($rates, $this->getAxisAverage($axis, $names, $rates));
-            }
-
-            array_push($names, "Leadership");
-            array_push($rates, $userResultService->getLeadershipIndex($this->getQuestionnairesAverageResults($questionnaire)));
-
-            array_push($names, "Management");
-            array_push($rates, $userResultService->getManagementIndex($this->getQuestionnairesAverageResults($questionnaire)));
-
-            array_push($names, "Fiabilité");
-            array_push($rates, $userResultService->getFiabilityIndex($rates));
-            
-            return new JsonResponse([
-                'rates' => $rates,
-                'names' => $names
-            ]);
-        }
-        return new Response('This is not ajax!', 400);
-    }
+    
 
     /**
      * Retourne la liste des users ayant terminé le questionnaire
@@ -352,7 +323,7 @@ class CoachController extends AbstractController
     {
         $topics = $this->getDoctrine()->getRepository(Topic::class)->findBy(['questionnaire' => $questionnaire]);   
 
-        if($topics){
+        if($topics) {
             $statements = $this->getDoctrine()->getRepository(Statement::class)->findBy(['topic' => $topics[count($topics) - 1]]);        
             $users = $this->getDoctrine()->getRepository(User::class)->findAsAnswered($statements[count($statements) - 1]);
             return $users;
@@ -366,7 +337,7 @@ class CoachController extends AbstractController
      * @param [type] $questionnaire
      * @return 
      */
-    private function getQuestionnaireProfilesResults($questionnaire, $users = null){
+    private function getQuestionnaireProfilesResults($questionnaire, $users = null) {
 
         if ($users == null){
             $users = $this->getQuestionnaireGoodStudents($questionnaire);
@@ -506,5 +477,143 @@ class CoachController extends AbstractController
         }
 
         return $result;
-    }    
+    }
+
+    /**
+     * Retourne les 13 scores
+     * @param $user
+     * @param $questionnaire
+     * @return array $data[]
+     */
+    private function getScores($user, $questionnaire) {
+
+        $data = [];
+
+        $profiles = $this->getDoctrine()->getRepository(Profile::class)->findBy([
+            'questionnaire' => $questionnaire
+        ]);
+
+        $records = $this->getDoctrine()->getRepository(Record::class)->findBy([
+            'user' => $user
+        ]);
+
+        // crée les clés du tableau dans l'ordre
+        foreach ($profiles as $profile) {
+            $data[$profile->getTitle()] = 0;
+        }
+        $data['Sens'] = 0;
+        $data['Système'] = 0;
+        $data['Social'] = 0;
+        $data['Cohérence'] = 0;
+        $data['Leadership'] = 0;
+        $data['Management'] = 0;
+
+        // ajoute les valeurs du tableau
+        $indexLeadership = [3, 9, 17, 25, 36, 43];
+        $indexManagement = [1, 2, 10, 12, 18, 19, 26, 27, 33, 34, 43, 44];
+        foreach ($records as $key => $record) {
+
+            $profile = $record->getStatement()->getProfile();
+            $data[$profile->getTitle()] += $record->getRate();
+
+            if(in_array($key + 1, $indexLeadership)) {
+                $data['Leadership'] += $record->getRate();
+            }
+
+            if (in_array($key + 1, $indexManagement)) {
+                $data['Management'] += $record->getRate();
+            }
+            
+        }
+
+        // ajoute les informations calculées
+        $data['Sens'] = ($data['Entrepreneur'] + $data['Directif']) / 2;
+        $data['Système'] = ($data['Réaliste'] + $data['Improvisateur']) / 2;
+        $data['Social'] = ($data['Participatif'] + $data['Arrangeant ou conciliant']) / 2;
+        $data['Cohérence'] = ($data['Organisateur'] + $data['Formaliste']) / 2;
+
+        $data['Leadership'] = round($data['Leadership'] / 3.6);
+        $data['Management'] = round($data['Management'] / 7.2);
+
+        $data['Fiabilité'] =
+            abs($data['Entrepreneur'] - $data['Directif']) + 
+            abs($data['Réaliste'] - $data['Improvisateur']) + 
+            abs($data['Participatif'] - $data['Arrangeant ou conciliant']) + 
+            abs($data['Organisateur'] - $data['Formaliste'])
+        ;
+
+        return $data;
+
+    }
+
+    /**
+     * Prend des jeux de 13 scores
+     * Retourne les 13 scores moyens
+     * @param array $usersScores[]
+     * @return array $averageScores[]
+     */
+    private function getAverage($usersScores) {
+
+        // Définit les clés
+        $keys = array_keys($usersScores[0]);
+
+        // Remplit les valeurs
+        foreach ($keys as $key) {
+            $averageScores[$key] = 0;
+            $values = [];
+            foreach ($usersScores as $userScores) {
+                $values[] = $userScores[$key];
+            }
+            $averageScores[$key] = array_sum($values) / count($values);
+        }
+
+        return $averageScores;
+
+    }
+
+    /**
+     * @Route("/calculate_results/{id}", name="calculate_results", methods={"GET","POST"}, requirements={"id"="\d+"})
+     * @IsGranted("ROLE_COACH")
+     * Appel Ajax
+     */
+    public function calculateResults(Questionnaire $questionnaire, UserResult $userResultService, Request $request): Response
+    {
+
+        if ($request->isXMLHttpRequest()) {
+            
+            // Tableau des users
+            $usersList = json_decode($request->getContent());
+            $users = [];
+            foreach ($usersList as $uid) {
+                $users[] = $this->getDoctrine()->getRepository(User::class)->find($uid);
+            }
+
+            // Tableau des scores
+            $usersScores = [];
+            foreach ($users as $user) {
+                $usersScores[] = $this->getScores($user, $questionnaire);
+            }
+
+            // Tableau des scores moyens
+            $averageScores = $this->getAverage($usersScores);
+
+            // Séparation du tableau pour correspondre aux données cibles
+            $rates = [];
+            $names = [];
+            foreach ($averageScores as $key => $value) {
+                $rates[] = $value;
+                $names[] = $key;
+            }
+
+            return new JsonResponse([
+                'rates' => $rates,
+                'names' => $names
+            ]);
+            
+        } else {
+            return new Response('This is not ajax!', 400);
+        }
+        
+    }
+
 }

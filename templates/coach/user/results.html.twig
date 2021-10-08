@@ -16,8 +16,8 @@
             </div>
             <hr>
             
-            <h5 class="font-weight-bold mt-5">Notes des différents profils :</h5>
-            <table class="table table-bordered text-center">
+            <h5 class="font-weight-bold mt-5">Scores par profils</h5>
+            <table class="table table-bordered text-center" style="table-layout: fixed;">
                 <tbody>
                     <thead>
                         <tr class="">
@@ -38,7 +38,7 @@
 
             <div class="d-flex row mt-5">
                 <div class="col-md-5 mr-auto">
-                    <h5 class="font-weight-bold">Notes des différents axes :</h5>
+                    <h5 class="font-weight-bold">Scores par axes</h5>
                     <table class="table table-bordered">
                         <tbody>
                             {% for i in 0..axisNames|length - 1%}
@@ -52,7 +52,7 @@
                 </div>
     
                 <div class="col-md-5">
-                    <h5 class="font-weight-bold">Notes des différents indices :</h5>
+                    <h5 class="font-weight-bold">Indices</h5>
                     <table class="table table-bordered">
                         <tbody>
                             {% for i in 0..indexNames|length - 1%}
