@@ -532,8 +532,8 @@ class CoachController extends AbstractController
         $data['Social'] = ($data['Participatif'] + $data['Arrangeant ou conciliant']) / 2;
         $data['Cohérence'] = ($data['Organisateur'] + $data['Formaliste']) / 2;
 
-        $data['Leadership'] = round($data['Leadership'] / 3.6);
-        $data['Management'] = round($data['Management'] / 7.2);
+        $data['Leadership'] = $data['Leadership'] / 3.6;
+        $data['Management'] = $data['Management'] / 7.2;
 
         $data['Fiabilité'] =
             abs($data['Entrepreneur'] - $data['Directif']) + 

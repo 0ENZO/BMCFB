@@ -45,14 +45,12 @@
                                     <th colspan="2">Moyenne de tous les résultats</th>
                                   </tr>
                             </thead>
-
                             {% for key, rate in rates %}
                                 <tr>
                                     <th>{{ key }}</th>
-                                    <td>{{ rate }}</td>
+                                    <td>{{ rate|round }}</td>
                                 </tr>    
                             {% endfor %}
-
                         </tbody>
                     </table>
                 </div>
@@ -157,8 +155,8 @@
                 if (data.rates) {
                     let index = 0;
                     document.querySelectorAll('.calculate_rates').forEach((td) => {
-                        td.innerHTML = data.rates[index];
-                        index += 1;
+                        td.innerHTML = Math.round(data.rates[index]) 
+                        index += 1
                     })
                     $('#modal_show_calculated').modal('show'); 
                 }
