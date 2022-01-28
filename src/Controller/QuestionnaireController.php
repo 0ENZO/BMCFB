@@ -186,7 +186,7 @@ class QuestionnaireController extends AbstractController
         $finished = false;
 
         try {
-            if (is_null($this->nextTopic($questionnaire))){
+            if (is_null($this->nextTopic($questionnaire))) {
                 $finished = true;
             }
         } catch (Exception $e) {
@@ -214,7 +214,7 @@ class QuestionnaireController extends AbstractController
 
         return $this->render('questionnaire/bilan.html.twig', [
             'user' => $user,
-            'questionnaire' => $questionnaire, 
+            'questionnaire' => $questionnaire,
             'profileNames' => json_encode($profileNames),
             'profileRates' => json_encode($profileRates),
             'average' => json_encode($average),
